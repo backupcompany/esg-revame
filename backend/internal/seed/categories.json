@@ -1,0 +1,345 @@
+[
+  {
+    "id": "energy_efficiency",
+    "nameId": "Efisiensi Energi & Kelistrikan",
+    "nameEn": "Energy Efficiency & Power Optimization",
+    "pillar": "E",
+    "defaultMetricUnitId": "kWh Listrik Terhemat / thn",
+    "defaultMetricUnitEn": "kWh Energy Saved / yr",
+    "defaultMetricLabelId": "Energi Terhemat",
+    "defaultMetricLabelEn": "Energy Conserved",
+    "iconName": "Zap",
+    "sdgs": [
+      7,
+      12,
+      13
+    ],
+    "griStandards": [
+      "GRI 302-1 (Konsumsi Energi)",
+      "GRI 302-4 (Pengurangan Energi)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Aspek Lingkungan: Efisiensi Penggunaan Energi",
+    "isoReference": "ISO 50001 (Energy Management)",
+    "defaultTipsId": [
+      "Ganti seluruh penerangan gudang & kantor operasional dengan lampu LED hemat energi.",
+      "Pasang sensor gerak (motion sensor) pada area jarang terpakai seperti toilet & koridor.",
+      "Catat meteran kWh harian dan bandingkan tren tagihan listrik sebelum & sesudah intervensi."
+    ],
+    "defaultTipsEn": [
+      "Replace all warehouse and office fixtures with high-efficiency commercial LED tubes.",
+      "Install motion occupancy sensors in low-traffic zones such as restrooms and storage corridors.",
+      "Track daily sub-metering kWh logs to quantify baseline versus post-retrofit electricity bills."
+    ]
+  },
+  {
+    "id": "renewable_energy",
+    "nameId": "Energi Terbarukan & Panel Surya",
+    "nameEn": "Renewable Energy & Solar Adoption",
+    "pillar": "E",
+    "defaultMetricUnitId": "kWh Energi Surya / thn",
+    "defaultMetricUnitEn": "kWh Solar Generated / yr",
+    "defaultMetricLabelId": "Pembangkitan Surya",
+    "defaultMetricLabelEn": "Solar Generated",
+    "iconName": "Sun",
+    "sdgs": [
+      7,
+      13
+    ],
+    "griStandards": [
+      "GRI 302-1 (Energi Terbarukan)",
+      "GRI 305-1 (Pengurangan Scope 1 & 2)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Pemanfaatan Energi Terbarukan & Bersih",
+    "isoReference": "ISO 50001 / RE100 Guidelines",
+    "defaultTipsId": [
+      "Lakukan studi kelayakan atap fasilitas untuk pemasangan PLTS Rooftop on-grid atau off-grid.",
+      "Gunakan Renewable Energy Certificate (REC) resmi PLN jika instalasi fisik belum memungkinkan.",
+      "Sertakan foto instalasi panel surya dan sertifikat kapasitas inverter (kWp)."
+    ],
+    "defaultTipsEn": [
+      "Conduct a rooftop feasibility study for on-grid or hybrid solar PV installation.",
+      "Procure certified Renewable Energy Certificates (REC) if physical rooftop is restricted.",
+      "Upload commissioned solar PV inverter nameplate and photo documentation."
+    ]
+  },
+  {
+    "id": "circular_packaging",
+    "nameId": "Kemasan Sirkular & Pengurangan Plastik",
+    "nameEn": "Circular Packaging & Plastic Reduction",
+    "pillar": "E",
+    "defaultMetricUnitId": "kg Plastik Dihindari",
+    "defaultMetricUnitEn": "kg Virgin Plastic Avoided",
+    "defaultMetricLabelId": "Plastik Dihindari",
+    "defaultMetricLabelEn": "Plastic Avoided",
+    "iconName": "PackageCheck",
+    "sdgs": [
+      12,
+      14,
+      15
+    ],
+    "griStandards": [
+      "GRI 301-1 (Material Terbarukan)",
+      "GRI 306-2 (Pengelolaan Limbah Kemasan)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Penggunaan Material Ramah Lingkungan & Daur Ulang",
+    "isoReference": "ISO 14021 (Environmental Labels)",
+    "defaultTipsId": [
+      "Ganti bubble wrap plastik sekali pakai dengan bantalan kardus daur ulang (perforated cardboard).",
+      "Terapkan sistem reusable returnable container untuk pengiriman logistik rutin ke rumah sakit.",
+      "Ambil foto perbandingan kemasan lama vs kemasan ramah lingkungan terbaru."
+    ],
+    "defaultTipsEn": [
+      "Substitute single-use plastic bubble wraps with perforated recycled cardboard padding.",
+      "Implement reusable returnable tote boxes for recurring distribution routes.",
+      "Capture before-and-after photo evidence of sustainable packaging implementation."
+    ]
+  },
+  {
+    "id": "waste_management",
+    "nameId": "Pengelolaan Limbah & Daur Ulang",
+    "nameEn": "Waste Stream Management & Recycling",
+    "pillar": "E",
+    "defaultMetricUnitId": "kg Limbah Terdaur Ulang",
+    "defaultMetricUnitEn": "kg Waste Diverted from Landfill",
+    "defaultMetricLabelId": "Limbah Terdiversi",
+    "defaultMetricLabelEn": "Waste Recycled",
+    "iconName": "Recycle",
+    "sdgs": [
+      11,
+      12,
+      13
+    ],
+    "griStandards": [
+      "GRI 306-1 (Timbulan Limbah)",
+      "GRI 306-4 (Limbah Dialihkan dari TPA)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Pengelolaan & Pengurangan Limbah Padat Operasional",
+    "isoReference": "ISO 14001 (Environmental Management)",
+    "defaultTipsId": [
+      "Sediakan tempat penampungan terpilah: Organik, Kardus/Kertas, Plastik, dan Logam.",
+      "Bekerja sama dengan bank sampah terdaftar atau agregator daur ulang berizin.",
+      "Simpan bukti timbang dan berita acara manifest serah terima limbah terdaur ulang."
+    ],
+    "defaultTipsEn": [
+      "Establish labeled 4-stream segregation bins across operational loading docks.",
+      "Partner with licensed circular recyclers and local waste aggregators.",
+      "Retain weigh-bridge manifests and chain-of-custody transfer receipts."
+    ]
+  },
+  {
+    "id": "water_conservation",
+    "nameId": "Konservasi Air & Pemanenan Hujan",
+    "nameEn": "Water Conservation & Rainwater Harvesting",
+    "pillar": "E",
+    "defaultMetricUnitId": "Liter Air Terhemat / thn",
+    "defaultMetricUnitEn": "Liters Water Conserved / yr",
+    "defaultMetricLabelId": "Air Terkonservasi",
+    "defaultMetricLabelEn": "Water Conserved",
+    "iconName": "Droplets",
+    "sdgs": [
+      6,
+      12
+    ],
+    "griStandards": [
+      "GRI 303-1 (Interaksi dengan Air)",
+      "GRI 303-5 (Konsumsi Air)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Efisiensi & Konservasi Air Bersih",
+    "isoReference": "ISO 14046 (Water Footprint)",
+    "defaultTipsId": [
+      "Pasang aerator penghemat aliran (low-flow) pada seluruh kran fasilitas.",
+      "Terapkan tandon penampungan air hujan untuk pencucian armada atau penyiraman taman.",
+      "Periksa berkala kebocoran pipa instalasi air bersih."
+    ],
+    "defaultTipsEn": [
+      "Install pressure-compensating low-flow aerators on all facility plumbing fixtures.",
+      "Deploy rainwater harvesting storage tanks for fleet wash and grounds maintenance.",
+      "Conduct monthly acoustic or visual pressure leak audits on distribution pipes."
+    ]
+  },
+  {
+    "id": "green_transport",
+    "nameId": "Logistik Ramah Lingkungan & Armada EV",
+    "nameEn": "Green Logistics & Clean Fleet",
+    "pillar": "E",
+    "defaultMetricUnitId": "km Rute Teroptimasi / Liter BBM",
+    "defaultMetricUnitEn": "km Clean Delivery / Fuel Saved",
+    "defaultMetricLabelId": "BBM & Emisi Terhindar",
+    "defaultMetricLabelEn": "Transport Emissions Cut",
+    "iconName": "Truck",
+    "sdgs": [
+      9,
+      11,
+      13
+    ],
+    "griStandards": [
+      "GRI 305-3 (Emisi Scope 3 Lainnya)",
+      "GRI 302-2 (Konsumsi Energi Transportasi)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Penurunan Emisi Gas Rumah Kaca Sektor Distribusi",
+    "isoReference": "Smart Freight Centre / GLEC Framework",
+    "defaultTipsId": [
+      "Terapkan software route optimization untuk meminimalkan jarak tempuh armada pengantaran.",
+      "Lakukan uji emisi berkala dan sertifikasi eco-driving untuk seluruh pengemudi.",
+      "Mulai adopsi sepeda motor/van listrik untuk pengiriman area perkotaan padat."
+    ],
+    "defaultTipsEn": [
+      "Implement dynamic multi-stop route optimization to reduce deadhead mileage.",
+      "Conduct mandatory quarterly exhaust emission tests and eco-driving training.",
+      "Pilot light commercial electric vehicles (EVs) for dense urban hospital delivery routes."
+    ]
+  },
+  {
+    "id": "occupational_health_safety",
+    "nameId": "K3 & Keselamatan Kerja Karyawan",
+    "nameEn": "Occupational Health & Safety (OHS)",
+    "pillar": "S",
+    "defaultMetricUnitId": "Jam Pelatihan K3 / Karyawan",
+    "defaultMetricUnitEn": "OHS Training Hours / Worker",
+    "defaultMetricLabelId": "Jam Pelatihan K3",
+    "defaultMetricLabelEn": "OHS Training Hours",
+    "iconName": "ShieldAlert",
+    "sdgs": [
+      3,
+      8
+    ],
+    "griStandards": [
+      "GRI 403-1 (Sistem Manajemen K3)",
+      "GRI 403-5 (Pelatihan K3 Pekerja)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Tanggung Jawab Sosial: Ketenagakerjaan, Kesehatan & Keselamatan Kerja",
+    "isoReference": "ISO 45001 (Occupational Health & Safety)",
+    "defaultTipsId": [
+      "Lengkapi seluruh pekerja lapangan dengan APD standar (sepatu safety, rompi reflektor, sarung tangan).",
+      "Lakukan safety briefing 10 menit setiap pagi (Toolbox Meeting) sebelum operasional dimulai.",
+      "Sediakan kotak P3K terisi lengkap dan tunjuk minimal 1 first aider bersertifikat."
+    ],
+    "defaultTipsEn": [
+      "Equip all field and warehouse personnel with certified PPE (steel-toe shoes, hi-vis vests, gloves).",
+      "Conduct mandatory 10-minute morning toolbox safety talks prior to daily shifts.",
+      "Inspect first aid stations monthly and maintain at least one certified first responder per shift."
+    ]
+  },
+  {
+    "id": "labor_welfare",
+    "nameId": "Kesejahteraan, Upah Layak & Hak Pekerja",
+    "nameEn": "Fair Living Wage & Labor Rights",
+    "pillar": "S",
+    "defaultMetricUnitId": "Karyawan Tercakup BPJS / Jaminan",
+    "defaultMetricUnitEn": "Employees Covered by Benefits",
+    "defaultMetricLabelId": "Pekerja Terlindungi",
+    "defaultMetricLabelEn": "Workers Protected",
+    "iconName": "HeartHandshake",
+    "sdgs": [
+      1,
+      8,
+      10
+    ],
+    "griStandards": [
+      "GRI 401-2 (Tunjangan Karyawan)",
+      "GRI 402-1 (Hubungan Tenaga Kerja)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Remunerasi Adil, Kesejahteraan & Jaminan Sosial Tenaga Kerja",
+    "isoReference": "SA8000 (Social Accountability) / ILO Standards",
+    "defaultTipsId": [
+      "Pastikan 100% karyawan terdaftar aktif dalam BPJS Ketenagakerjaan dan BPJS Kesehatan.",
+      "Terapkan kebijakan upah minimum legal tanpa potongan biaya administrasi yang merugikan.",
+      "Buat saluran kotak saran/aduan karyawan yang bersifat rahasia dan bebas diskriminasi."
+    ],
+    "defaultTipsEn": [
+      "Ensure 100% active enrollment in national social security and healthcare safety nets.",
+      "Guarantee on-time disbursement of statutory living wages with transparent pay stubs.",
+      "Institute an anonymous employee grievance and suggestion mechanism free from retaliation."
+    ]
+  },
+  {
+    "id": "diversity_inclusion",
+    "nameId": "Keragaman, Kesetaraan & Inklusi Gender",
+    "nameEn": "Diversity, Equity & Gender Inclusion",
+    "pillar": "S",
+    "defaultMetricUnitId": "% Partisipasi Inklusif / Pelatihan",
+    "defaultMetricUnitEn": "% Diversity Ratio in Workforce",
+    "defaultMetricLabelId": "Rasio Inklusivitas",
+    "defaultMetricLabelEn": "Workforce Inclusion",
+    "iconName": "Users",
+    "sdgs": [
+      5,
+      10
+    ],
+    "griStandards": [
+      "GRI 405-1 (Keanekaragaman Badan Tata Kelola & Karyawan)",
+      "GRI 406-1 (Non-Diskriminasi)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Kesetaraan Gender & Kesempatan Kerja yang Adil",
+    "isoReference": "ISO 30415 (Human Resource Management - Diversity & Inclusion)",
+    "defaultTipsId": [
+      "Buka kesempatan setara bagi wanita untuk posisi supervisor dan manajemen operasional.",
+      "Sediakan fasilitas kerja ramah difabel serta ruang laktasi yang bersih bagi ibu menyusui.",
+      "Terapkan klausul anti pelecehan seksual dan diskriminasi dalam peraturan perusahaan."
+    ],
+    "defaultTipsEn": [
+      "Promote equal opportunity pathways for women in supervisory and operations leadership.",
+      "Provide barrier-free accessibility and a dedicated clean nursery/lactation room.",
+      "Formalize zero-tolerance workplace anti-harassment and anti-bias policies."
+    ]
+  },
+  {
+    "id": "anti_corruption",
+    "nameId": "Etika Bisnis, Anti-Korupsi & Gratifikasi",
+    "nameEn": "Business Ethics & Anti-Bribery Compliance",
+    "pillar": "G",
+    "defaultMetricUnitId": "Pakta Integritas / Karyawan Terlatih",
+    "defaultMetricUnitEn": "Integrity Pacts Signed & Trained",
+    "defaultMetricLabelId": "Kepatuhan Etika",
+    "defaultMetricLabelEn": "Ethics Compliance",
+    "iconName": "Scale",
+    "sdgs": [
+      16
+    ],
+    "griStandards": [
+      "GRI 205-1 (Operasi Dinilai untuk Risiko Korupsi)",
+      "GRI 205-2 (Komunikasi & Pelatihan Anti-Korupsi)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Tata Kelola: Penerapan Prinsip Anti Korupsi & Penyuapan",
+    "isoReference": "ISO 37001 (Anti-Bribery Management Systems)",
+    "defaultTipsId": [
+      "Tandatangani Pakta Integritas dan No Gift Policy dengan seluruh tim pengadaan dan sales.",
+      "Pasang poster penolakan suap & gratifikasi di area lobi, gudang, dan ruang resepsionis.",
+      "Lakukan sosialisasi etika bisnis tahunan untuk seluruh staf yang berhubungan dengan klien."
+    ],
+    "defaultTipsEn": [
+      "Execute binding integrity pacts and strict No-Gift policies with all procurement and sales personnel.",
+      "Display prominent Anti-Bribery signage in reception areas, docks, and transaction counters.",
+      "Conduct annual ethics and anti-corruption refresher sessions for commercial staff."
+    ]
+  },
+  {
+    "id": "data_privacy",
+    "nameId": "Privasi Data & Kepatuhan Perlindungan Informasi",
+    "nameEn": "Data Privacy & Information Protection",
+    "pillar": "G",
+    "defaultMetricUnitId": "Audit Kepatuhan / Perangkat Terenkripsi",
+    "defaultMetricUnitEn": "Security Audit & Encrypted Systems",
+    "defaultMetricLabelId": "Keamanan Data",
+    "defaultMetricLabelEn": "Data Governance",
+    "iconName": "ShieldCheck",
+    "sdgs": [
+      16
+    ],
+    "griStandards": [
+      "GRI 418-1 (Keluhan Terkait Pelanggaran Privasi Pelanggan)"
+    ],
+    "pojkCategory": "POJK 51/2017 - Perlindungan Data & Keamanan Informasi Korporasi",
+    "isoReference": "ISO 27001 (Information Security Management) / UU PDP No. 27/2022",
+    "defaultTipsId": [
+      "Terapkan otentikasi dua faktor (2FA) dan enkripsi password pada seluruh sistem data operasional.",
+      "Pastikan dokumen tender & informasi rekam operasional klien rumah sakit disimpan secara terenkripsi.",
+      "Lakukan pelatihan berkala pencegahan phishing dan rekayasa sosial kepada seluruh karyawan."
+    ],
+    "defaultTipsEn": [
+      "Enforce mandatory two-factor authentication (2FA) and password managers across operational apps.",
+      "Store healthcare partner records and procurement agreements within encrypted repositories.",
+      "Run periodic cybersecurity and anti-phishing simulations for operational staff."
+    ]
+  }
+]

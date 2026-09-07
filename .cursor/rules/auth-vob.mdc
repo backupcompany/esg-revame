@@ -1,0 +1,29 @@
+---
+description: Siloam VOB invite-only login. No self-signup. Same security bar as a Siloam domain.
+alwaysApply: true
+---
+
+# Auth = VOB roster (Heldra, 27 Aug 2026)
+
+ESG Together is **invite-only**. Vendor master lives with **Nerissa / VOB**. Users do not sign up.
+
+## Login
+
+1. SSO (Google or Microsoft via Firebase) with the **exact email already on the vendor roster**.
+2. Email domain can be anything (gmail, company M365, etc.). Allowlist is the gate, not `@siloamhospitals.com`. No password signup.
+3. On success, bind `users.vendor_id` from `vendor_allowed_emails` and land **inside that vendor**. No picker, no "create company".
+4. Email not on roster → `not_invited`. Do not create a vendor-less portal user.
+5. `@siloamhospitals.com` is **not** auto super_admin. Operators are assigned.
+
+## Security bar
+
+Treat every allowed email like a Siloam-domain login: Firebase ID token, tenant-scoped queries, no walk-in, demo token **off** in production (`ESG_ALLOW_DEMO=false`, `ESG_ENFORCE_ALLOWLIST=true`).
+
+## Do not build
+
+- Public self-registration / walk-in onboarding into a new vendor
+- "Any Google account can enter then pick a company"
+- Weakening checks because the mailbox is not `@siloamhospitals.com`
+- Live VOB/Nerissa API until they hand a contract. Until then: Excel/roster → `vendors` + `vendor_allowed_emails` is the SoT.
+
+Onboarding 5-step is **profile complete for an already-linked vendor**, not an application form.

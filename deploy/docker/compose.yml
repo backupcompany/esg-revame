@@ -1,0 +1,30 @@
+name: esg-together
+
+services:
+  esg-api:
+    build:
+      context: ../../backend
+      dockerfile: ../deploy/docker/Dockerfile
+    container_name: esg-api
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - /opt/apps/esg-together/.env
+    environment:
+      API_ADDR: 127.0.0.1:8084
+      SQL_SSLMODE: disable
+      ESG_ALLOW_DEMO: "false"
+      ESG_ENFORCE_ALLOWLIST: "true"
+      ESG_UPLOAD_DIR: /app/data/uploads
+    volumes:
+      - /opt/apps/esg-together/backend/data/uploads:/app/data/uploads
+      - /opt/apps/esg-together/.env:/app/.env:ro
+
+  esg-web:
+    image: nginx:1.27-alpine
+    container_name: esg-web
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /opt/apps/esg-together/dist:/usr/share/nginx/html:ro
+      - /opt/apps/esg-together/deploy/docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro

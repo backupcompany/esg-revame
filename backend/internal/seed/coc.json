@@ -1,0 +1,49 @@
+{
+  "version": "2026.1",
+  "titleId": "Surat Pernyataan Kode Etik Pemasok",
+  "titleEn": "Supplier Code of Conduct Declaration",
+  "clauses": [
+    {
+      "id": "A",
+      "titleId": "Kebijakan Pengadaan Berkelanjutan yang ditetapkan Siloam Hospitals Group",
+      "titleEn": "Siloam Hospitals Group Sustainable Procurement Policy",
+      "bodyId": "Dalam menjalankan bisnisnya, Pemasok setuju untuk menerapkan dan memastikan penerapan nilai-nilai atau prinsip-prinsip yang terkandung dalam Kebijakan Pengadaan Berkelanjutan kepada seluruh rantai pasoknya, sebagaimana tertuang pada website resmi Siloam Hospitals: https://www.siloamhospitals.com/",
+      "bodyEn": "The Supplier agrees to apply Siloam Hospitals Group Sustainable Procurement principles across its supply chain, as published at https://www.siloamhospitals.com/"
+    },
+    {
+      "id": "B",
+      "titleId": "Benturan Kepentingan, Kolusi, dan Korupsi",
+      "titleEn": "Conflicts of Interest, Collusion, and Corruption",
+      "bodyId": "Pemasok dan karyawannya tidak mempunyai benturan kepentingan dengan Siloam Hospitals Group. Dilarang berkolusi atau korupsi dalam bentuk apapun. Pelanggaran berakibat pemutusan kerjasama sepihak tanpa kompensasi.",
+      "bodyEn": "The Supplier and its employees must have no conflict of interest with Siloam Hospitals Group. Collusion or corruption of any kind is prohibited. Proven violations allow immediate unilateral termination without compensation."
+    },
+    {
+      "id": "C",
+      "titleId": "Hadiah, Komisi, Gratifikasi",
+      "titleEn": "Gifts, Commissions, Gratuities",
+      "bodyId": "Pemasok tidak akan menawarkan, memberikan atau menyetujui untuk memberikan hadiah, komisi yang tidak wajar, atau bentuk keuntungan lainnya di luar kerjasama yang disepakati kepada Siloam Hospitals Group dan karyawannya.",
+      "bodyEn": "The Supplier will not offer or give improper gifts, commissions, or other benefits outside the agreed contract to Siloam Hospitals Group or its employees."
+    },
+    {
+      "id": "D",
+      "titleId": "Jaminan Harga Adil dan Wajar",
+      "titleEn": "Fair and Reasonable Pricing",
+      "bodyId": "Pemasok menyatakan bahwa harga yang diberikan adalah wajar. Ketidakwajaran harga dapat diminta dikembalikan dan dikenai sanksi sesuai peraturan. Harga sudah termasuk manfaat dan pajak kecuali PPN 11%.",
+      "bodyEn": "The Supplier warrants that quoted prices are fair and reasonable. Unreasonable pricing may be clawed back and sanctioned. Prices include applicable charges except 11% VAT."
+    },
+    {
+      "id": "E",
+      "titleId": "Prinsip-Prinsip Environmental, Social, and Governance / ESG",
+      "titleEn": "Environmental, Social, and Governance Principles",
+      "bodyId": "Pemasok menerapkan ESG termasuk larangan perbudakan modern dan pekerja anak, anti-pelecehan, non-diskriminasi, K3, jam kerja layak, kompensasi adil, hak berserikat, pekerjaan yang dipilih secara bebas, perlindungan lingkungan, anti korupsi, dan minimisasi limbah.",
+      "bodyEn": "The Supplier applies ESG principles including bans on modern slavery and child labour, anti-harassment, non-discrimination, occupational safety, fair hours and pay, freedom of association, freely chosen employment, environmental protection, anti-corruption, and waste minimisation."
+    },
+    {
+      "id": "F",
+      "titleId": "Ketentuan Bahasa & Penutup",
+      "titleEn": "Language and Closing",
+      "bodyId": "Pernyataan ini dibuat dalam bahasa Inggris dan Indonesia. Jika timbul inkonsistensi, versi Bahasa Indonesia yang berlaku. Ditandatangani tanpa paksaan dan dilaksanakan dengan penuh tanggung jawab.",
+      "bodyEn": "This declaration is issued in English and Indonesian. In case of inconsistency, the Indonesian version prevails. It is signed without coercion and executed in good faith."
+    }
+  ]
+}
