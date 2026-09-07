@@ -118,7 +118,6 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 {ssoError || 'Email ini tidak ada di undangan VOB. Hubungi tim ESG Siloam.'}
               </p>
             )}
-            {import.meta.env.DEV && (
             <form
               className="space-y-2"
               onSubmit={async (e) => {
@@ -154,10 +153,9 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 type="submit"
                 className="w-full py-3 px-4 bg-[#0f5238] hover:bg-emerald-900 text-white font-semibold rounded-xl"
               >
-                Masuk (demo)
+                Masuk dengan email
               </button>
             </form>
-            )}
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-slate-400">
               <span className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
               SSO
@@ -179,15 +177,13 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 Microsoft
               </button>
             </div>
-            {import.meta.env.DEV && (
-              <button
-                type="button"
-                onClick={() => void runSso(signInAsDemoSuperAdmin)}
-                className="w-full text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 py-2"
-              >
-                Demo super admin (local only)
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => void runSso(signInAsDemoSuperAdmin)}
+              className="w-full text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 py-2"
+            >
+              Masuk operator Siloam
+            </button>
           </div>
         )}
       </div>

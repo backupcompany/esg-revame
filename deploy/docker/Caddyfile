@@ -1,0 +1,12 @@
+# Snippet for /ops-agentic/workspaces/gateway/Caddyfile
+# Web 127.0.0.1:3011  API 127.0.0.1:8084  (host network)
+
+esg-together.cgp-ai.com {
+	encode gzip zstd
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8084
+	}
+	handle {
+		reverse_proxy 127.0.0.1:3011
+	}
+}
