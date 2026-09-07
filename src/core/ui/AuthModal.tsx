@@ -177,13 +177,15 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 Microsoft
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => void runSso(signInAsDemoSuperAdmin)}
-              className="w-full text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 py-2"
-            >
-              Masuk operator Siloam
-            </button>
+            {import.meta.env.DEV && (
+              <button
+                type="button"
+                onClick={() => void runSso(signInAsDemoSuperAdmin)}
+                className="w-full text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 py-2"
+              >
+                Demo super admin (local only)
+              </button>
+            )}
           </div>
         )}
       </div>
