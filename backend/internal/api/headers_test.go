@@ -100,12 +100,27 @@ func TestDemoLoginSetsHttpOnlyCookie(t *testing.T) {
 func TestRequireAuthCookieRejectedWhenDemoOff(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	h := New(config.Config{AllowDemo: false}, &pgxpool.Pool{})
-	req := httptest.NewRequest(http.MethodGet, "/api/auth/me", nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/vendors", nil)
 	req.RemoteAddr = "127.0.0.1:1"
 	req.AddCookie(&http.Cookie{Name: sessionCookie, Value: "stolen"})
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, req)
 	if w.Code != http.StatusUnauthorized {
 		t.Fatalf("code %d", w.Code)
+	}
+}
+
+func TestMeGuestOK(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
+	h := New(config.Config{AllowDemo: true}, &pgxpool.Pool{})
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/me", nil)
+	req.RemoteAddr = "127.0.0.1:1"
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("code %d body %s", w.Code, w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), `"user":null`) {
+		t.Fatalf("body %s", w.Body.String())
 	}
 }

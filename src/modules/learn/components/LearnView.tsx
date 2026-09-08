@@ -6,6 +6,7 @@ import { PillarBadge } from '../../../core/ui/Badges';
 import { LessonPlayerModal } from './LessonPlayerModal';
 import { EsgFrameworkGuideModal } from './EsgFrameworkGuideModal';
 import { PrimaryTab } from '../../../core/types';
+import { useLanguage } from '../../../core/context/LanguageContext';
 import {
   BookOpen,
   Clock,
@@ -28,6 +29,7 @@ interface LearnViewProps {
 }
 
 export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
+  const { isId } = useLanguage();
   const {
     modules,
     activeModule,
@@ -55,7 +57,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
     return (
       <div className="max-w-4xl mx-auto py-16 px-4 text-center">
         <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-sm font-semibold text-slate-500">Memuat Siloam ESG Micro-Learning Hub...</p>
+        <p className="text-sm font-semibold text-slate-500">{isId ? 'Memuat Siloam ESG Micro-Learning Hub...' : 'Loading Siloam ESG Micro-Learning Hub...'}</p>
       </div>
     );
   }
@@ -95,7 +97,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-snug">
-              ESG Micro-Learning Hub untuk Mitra Rekanan
+              {isId ? 'ESG Micro-Learning Hub untuk Mitra Rekanan' : 'ESG Micro-Learning Hub for Vendor Partners'}
             </h1>
 
             <p className="text-xs sm:text-sm text-emerald-100/90 leading-relaxed">
@@ -112,7 +114,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
               onClick={() => setIsFrameworkModalOpen(true)}
               className="bg-white text-slate-900 hover:bg-emerald-50 font-extrabold shadow-sm"
             >
-              Panduan: Menerapkan ESG di Perusahaan Saya
+              {isId ? 'Panduan: Menerapkan ESG di Perusahaan Saya' : 'Guide: Applying ESG in My Company'}
             </Button>
             <span className="text-[11px] text-emerald-200 text-center">
               Framework P-L-A-N-S Praktis (5 Langkah)
@@ -129,10 +131,10 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
           </div>
           <div>
             <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-              Modul Terselesaikan
+              {isId ? 'Modul Terselesaikan' : 'Modules Completed'}
             </span>
             <span className="text-xl font-extrabold text-slate-900 dark:text-slate-100">
-              {completedCount} / {modules.length} Kursus
+              {completedCount} / {modules.length} {isId ? 'Kursus' : 'Courses'}
             </span>
           </div>
         </BaseCard>
@@ -143,7 +145,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
           </div>
           <div>
             <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
-              Reward SG-PTS Terkumpul
+              {isId ? 'Reward SG-PTS Terkumpul' : 'SG-PTS Earned'}
             </span>
             <span className="text-xl font-extrabold text-amber-600 dark:text-amber-400">
               +{totalEarnedPoints} PTS
@@ -157,7 +159,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-              <span>Kelulusan Kurikulum</span>
+              <span>{isId ? 'Kelulusan Kurikulum' : 'Curriculum Progress'}</span>
               <span>{completionPercentage}%</span>
             </div>
             <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
@@ -177,7 +179,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Cari topik pembelajaran mikro (contoh: logistik, katering, APD, listrik)..."
+            placeholder={isId ? 'Cari topik pembelajaran mikro (contoh: logistik, katering, APD, listrik)...' : 'Search micro-learning topics (e.g. logistics, catering, PPE, electricity)...'}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"
@@ -198,7 +200,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
-                {p === 'ALL' ? 'Semua Pilar' : `Pilar ${p}`}
+                {p === 'ALL' ? (isId ? 'Semua Pilar' : 'All Pillars') : (isId ? `Pilar ${p}` : `Pillar ${p}`)}
               </button>
             );
           })}
@@ -208,21 +210,21 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
       {/* Sector Category Filter Chips */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
         <span className="text-slate-400 font-semibold flex items-center gap-1 shrink-0">
-          <Filter className="w-3.5 h-3.5" /> Filter Sektor:
+          <Filter className="w-3.5 h-3.5" /> {isId ? 'Filter Sektor:' : 'Sector filter:'}
         </span>
         {sectorList.map(sec => {
           const isSelected = selectedSector === sec;
           const label =
             sec === 'ALL'
-              ? 'Semua Sektor'
+              ? (isId ? 'Semua Sektor' : 'All Sectors')
               : sec === 'Logistics & Fleet'
-              ? '🚚 Logistik & Armada'
+              ? (isId ? '🚚 Logistik & Armada' : '🚚 Logistics & Fleet')
               : sec === 'Food & Catering'
-              ? '🍽️ Katering & F&B'
+              ? (isId ? '🍽️ Katering & F&B' : '🍽️ Food & Catering')
               : sec === 'Facility & Cleaning'
-              ? '🧹 Jasa & Kebersihan'
+              ? (isId ? '🧹 Jasa & Kebersihan' : '🧹 Facility & Cleaning')
               : sec === 'IT & Professional'
-              ? '💻 IT & Kantor'
+              ? (isId ? '💻 IT & Kantor' : '💻 IT & Professional')
               : sec;
 
           return (
@@ -314,16 +316,16 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
                 <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
                   <div className="space-y-2">
                     <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100 leading-snug line-clamp-2">
-                      {mod.titleId || mod.title}
+                      {isId ? (mod.titleId || mod.title) : mod.title}
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                      {mod.descriptionId || mod.description}
+                      {isId ? (mod.descriptionId || mod.description) : mod.description}
                     </p>
 
                     {/* Benefit / Problem preview chip */}
                     {mod.esgBenefit && (
                       <div className="p-2 rounded-lg bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200/60 dark:border-emerald-900/50 text-[11px] text-emerald-800 dark:text-emerald-300 font-medium line-clamp-2">
-                        <span className="font-bold text-emerald-900 dark:text-emerald-200">Manfaat: </span>
+                        <span className="font-bold text-emerald-900 dark:text-emerald-200">{isId ? 'Manfaat: ' : 'Benefit: '}</span>
                         {mod.esgBenefit}
                       </div>
                     )}
@@ -342,7 +344,7 @@ export const LearnView: React.FC<LearnViewProps> = ({ onNavigate }) => {
                       onClick={() => startModule(mod)}
                       className={isCompleted ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300' : ''}
                     >
-                      {isCompleted ? 'Review Ulang' : 'Mulai Belajar'}
+                      {isCompleted ? (isId ? 'Review Ulang' : 'Review') : (isId ? 'Mulai Belajar' : 'Start Learning')}
                     </Button>
                   </div>
                 </div>

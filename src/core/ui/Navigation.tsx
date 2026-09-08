@@ -4,6 +4,60 @@ import { Home, ClipboardCheck, BookOpen, Compass, Award, User, ShieldCheck, Moon
 import { LevelBadge } from './Badges';
 import { BRAND_LOGO } from './assets';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
+
+export const LanguageToggle: React.FC<{ className?: string }> = ({ className = '' }) => {
+  const { lang, setLang } = useLanguage();
+  return (
+    <div className={`flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-0.5 border border-slate-200 dark:border-slate-700 shadow-xs ${className}`}>
+      <button
+        type="button"
+        onClick={() => setLang('ID')}
+        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+          lang === 'ID'
+            ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-xs'
+            : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+        }`}
+        title="Bahasa Indonesia"
+      >
+        <span>ID</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => setLang('EN')}
+        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+          lang === 'EN'
+            ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-xs'
+            : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+        }`}
+        title="English"
+      >
+        <span>EN</span>
+      </button>
+    </div>
+  );
+};
+
+export const AccountButton: React.FC<{ onClick: () => void; className?: string }> = ({ onClick, className = 'px-3 py-2' }) => {
+  const { isId } = useLanguage();
+  const { dbUser } = useAuth();
+  const signedIn = Boolean(dbUser);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${className} ${
+        signedIn
+          ? 'text-emerald-800 dark:text-emerald-200 bg-emerald-50 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/50'
+          : 'text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800'
+      }`}
+      title={signedIn ? (isId ? 'Akun' : 'Account') : (isId ? 'Masuk' : 'Sign in')}
+    >
+      <User className={`w-3.5 h-3.5 ${signedIn ? 'text-emerald-600' : 'text-slate-400'}`} />
+      <span className="hidden sm:inline">{signedIn ? (isId ? 'Akun' : 'Account') : (isId ? 'Masuk' : 'Sign in')}</span>
+    </button>
+  );
+};
 
 interface NavProps {
   activeTab: PrimaryTab;
@@ -24,7 +78,7 @@ export const MobileBottomNav: React.FC<NavProps> = ({
   isAdminMode,
   onNavigateToPublic
 }) => {
-  const { lang, isId } = useLanguage();
+  const { isId } = useLanguage();
   if (isAdminMode) return null; // Admin mode uses custom header
 
   const navItems: { id: PrimaryTab; label: string; icon: React.ReactNode }[] = [
@@ -76,7 +130,7 @@ export const DesktopHeader: React.FC<NavProps> = ({
   onOpenAuth,
   canAccessAdmin = false
 }) => {
-  const { lang, setLang, toggleLang, isId } = useLanguage();
+  const { isId } = useLanguage();
 
   const navItems: { id: PrimaryTab; label: string; icon: React.ReactNode }[] = [
     { id: 'home', label: isId ? 'Beranda' : 'Home', icon: <Home className="w-4 h-4" /> },
@@ -116,33 +170,7 @@ export const DesktopHeader: React.FC<NavProps> = ({
 
         {/* Header Right Actions */}
         <div className="flex items-center gap-2">
-          {/* Master Global Language Switcher */}
-          <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-0.5 border border-slate-200 dark:border-slate-700 shadow-xs">
-            <button
-              onClick={() => setLang('ID')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                lang === 'ID'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-xs'
-                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
-              title="Bahasa Indonesia (Aktif ke semua tab)"
-            >
-              <span>🇮🇩</span>
-              <span>ID</span>
-            </button>
-            <button
-              onClick={() => setLang('EN')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
-                lang === 'EN'
-                  ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 shadow-xs'
-                  : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
-              }`}
-              title="English (Active across all tabs)"
-            >
-              <span>🇬🇧</span>
-              <span>EN</span>
-            </button>
-          </div>
+          <LanguageToggle />
 
           {/* Public Newsletter Portal Link */}
           {onNavigateToPublic && (
@@ -160,22 +188,12 @@ export const DesktopHeader: React.FC<NavProps> = ({
           <button
             onClick={onToggleTheme}
             className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            title="Toggle Light / Dark Mode"
+            title={isId ? 'Ganti tema terang / gelap' : 'Toggle light / dark mode'}
           >
             {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
           </button>
 
-          {/* Auth Account Button */}
-          {onOpenAuth && (
-            <button
-              onClick={onOpenAuth}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              title="Cloud Account & Authorization"
-            >
-              <User className="w-4 h-4 text-emerald-600" />
-              <span className="hidden sm:inline">Account</span>
-            </button>
-          )}
+          {onOpenAuth && <AccountButton onClick={onOpenAuth} className="px-3 py-1.5" />}
 
           {/* Orchestrator / Company Admin Mode Switcher - ONLY if authorized */}
           {canAccessAdmin && (

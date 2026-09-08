@@ -6,7 +6,7 @@ import { Button } from '../../../core/ui/Button';
 import { Input, Select, TextArea } from '../../../core/ui/Form';
 import { PillarBadge } from '../../../core/ui/Badges';
 import { Modal } from '../../../core/ui/FeedbackStates';
-import { PLACEHOLDER_IMAGE } from '../../../core/ui/assets';
+import { PLACEHOLDER_IMAGE, catalogImage } from '../../../core/ui/assets';
 import {
   downloadActionCatalogTemplate,
   exportActionsToExcel,
@@ -505,9 +505,11 @@ export const AdminActionCatalogManager: React.FC = () => {
                       <td className="py-2.5 px-3 text-center">
                         <div className="w-11 h-9 rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 mx-auto">
                           <img
-                            src={act.imageUrl || PLACEHOLDER_IMAGE}
+                            src={catalogImage(act.imageUrl, 400)}
                             alt={act.titleId || act.title}
                             className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                            onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMAGE; }}
                           />
                         </div>
                       </td>
@@ -697,7 +699,7 @@ export const AdminActionCatalogManager: React.FC = () => {
                     <div className="space-y-2">
                       {prop.imageUrl && (
                         <div className="h-28 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-                          <img src={prop.imageUrl} alt="Ilustrasi" className="w-full h-full object-cover" />
+                          <img src={catalogImage(prop.imageUrl, 800)} alt="Ilustrasi" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                         </div>
                       )}
                       <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl space-y-1 text-[11px]">

@@ -16,9 +16,8 @@ export class VendorService {
     let displayName = auth.currentUser?.displayName || '';
     try {
       const resMe = await apiFetch('/api/auth/me');
-      let serverVendor: Record<string, unknown> | null = null;
-
-      if (resMe.status === 401) {
+      const dataMe = resMe.ok ? await resMe.json() : null;
+      if (!dataMe?.user) {
         return {
           id: '',
           name: '',
@@ -35,13 +34,9 @@ export class VendorService {
           hasCompletedOnboarding: false,
         };
       }
-
-      if (resMe.ok) {
-        const dataMe = await resMe.json();
-        serverVendor = dataMe.vendor ?? null;
-        email = dataMe.user?.email || email;
-        displayName = dataMe.user?.name || displayName;
-      }
+      let serverVendor: Record<string, unknown> | null = dataMe.vendor ?? null;
+      email = dataMe.user?.email || email;
+      displayName = dataMe.user?.name || displayName;
 
       if (!serverVendor) {
         const res = await apiFetch('/api/vendors');

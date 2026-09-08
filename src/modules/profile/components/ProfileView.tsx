@@ -7,6 +7,7 @@ import { Input, TextArea } from '../../../core/ui/Form';
 import { LevelBadge } from '../../../core/ui/Badges';
 import { VendorProfile, AiLogEntry } from '../../../core/types';
 import { User, ShieldCheck, Sparkles, Save, RotateCcw, Cpu, Moon, Sun, Building, Mail, MapPin } from 'lucide-react';
+import { useLanguage } from '../../../core/context/LanguageContext';
 
 interface ProfileViewProps {
   theme: 'light' | 'dark';
@@ -15,6 +16,7 @@ interface ProfileViewProps {
 }
 
 export const ProfileView: React.FC<ProfileViewProps> = ({ theme, onToggleTheme, onStartOnboarding }) => {
+  const { isId } = useLanguage();
   const [vendor, setVendor] = useState<VendorProfile | null>(null);
   const [aiLogs, setAiLogs] = useState<AiLogEntry[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -51,10 +53,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ theme, onToggleTheme, 
       {/* Header */}
       <div className="space-y-1">
         <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <User className="w-6 h-6 text-emerald-600" /> Vendor Profile & ESG Identity
+          <User className="w-6 h-6 text-emerald-600" /> {isId ? 'Profil Vendor & Identitas ESG' : 'Vendor Profile & ESG Identity'}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Manage your organization details, sustainability commitment statement, and view AI efficiency logs.
+          {isId
+            ? 'Kelola data organisasi, pernyataan komitmen keberlanjutan, dan log efisiensi AI.'
+            : 'Manage your organization details, sustainability commitment statement, and view AI efficiency logs.'}
         </p>
       </div>
 
@@ -76,50 +80,50 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ theme, onToggleTheme, 
             </div>
 
             <Button variant="primary" size="md" type="submit" isLoading={isSaving} icon={<Save className="w-4 h-4" />}>
-              Save Profile
+              {isId ? 'Simpan Profil' : 'Save Profile'}
             </Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
-              label="Company Name"
+              label={isId ? 'Nama Perusahaan' : 'Company Name'}
               value={formData.name || ''}
               onChange={e => setFormData({ ...formData, name: e.target.value })}
               icon={<Building className="w-4 h-4" />}
               required
             />
             <Input
-              label="Industry Sector"
+              label={isId ? 'Sektor Industri' : 'Industry Sector'}
               value={formData.industry || ''}
               onChange={e => setFormData({ ...formData, industry: e.target.value })}
               required
             />
             <Input
-              label="Employee Size"
+              label={isId ? 'Jumlah Karyawan' : 'Employee Size'}
               value={formData.employeeCount || ''}
               onChange={e => setFormData({ ...formData, employeeCount: e.target.value })}
             />
             <Input
-              label="Operating Location"
+              label={isId ? 'Lokasi Operasi' : 'Operating Location'}
               value={formData.location || ''}
               onChange={e => setFormData({ ...formData, location: e.target.value })}
               icon={<MapPin className="w-4 h-4" />}
             />
             <Input
-              label="Contact Email"
+              label={isId ? 'Email Kontak' : 'Contact Email'}
               value={formData.contactEmail || ''}
               onChange={e => setFormData({ ...formData, contactEmail: e.target.value })}
               icon={<Mail className="w-4 h-4" />}
             />
             <Input
-              label="Primary Contact Representative"
+              label={isId ? 'Nama PIC' : 'Primary Contact Representative'}
               value={formData.contactName || ''}
               onChange={e => setFormData({ ...formData, contactName: e.target.value })}
             />
           </div>
 
           <TextArea
-            label="Company Sustainability Statement / Goal"
+            label={isId ? 'Pernyataan / Target Keberlanjutan' : 'Company Sustainability Statement / Goal'}
             value={formData.sustainabilityGoal || ''}
             onChange={e => setFormData({ ...formData, sustainabilityGoal: e.target.value })}
             placeholder="E.g., Target 30% carbon footprint reduction and 100% fair workplace policy..."
@@ -131,25 +135,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ theme, onToggleTheme, 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <BaseCard padding="md" className="flex items-center justify-between">
           <div>
-            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Vendor Onboarding</h4>
-            <p className="text-xs text-slate-500">Re-run the 5-minute onboarding experience.</p>
+            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">{isId ? 'Onboarding Vendor' : 'Vendor Onboarding'}</h4>
+            <p className="text-xs text-slate-500">{isId ? 'Ulangi pengalaman onboarding 5 menit.' : 'Re-run the 5-minute onboarding experience.'}</p>
           </div>
 
           {onStartOnboarding && (
             <Button variant="outline" size="sm" icon={<RotateCcw className="w-4 h-4 text-emerald-600" />} onClick={onStartOnboarding}>
-              Start Onboarding
+              {isId ? 'Mulai Onboarding' : 'Start Onboarding'}
             </Button>
           )}
         </BaseCard>
 
         <BaseCard padding="md" className="flex items-center justify-between">
           <div>
-            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">Appearance & Theme</h4>
-            <p className="text-xs text-slate-500">Switch between Light Mode and Dark Mode styling.</p>
+            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">{isId ? 'Tampilan & Tema' : 'Appearance & Theme'}</h4>
+            <p className="text-xs text-slate-500">{isId ? 'Ganti antara mode terang dan gelap.' : 'Switch between Light Mode and Dark Mode styling.'}</p>
           </div>
 
           <Button variant="outline" size="sm" icon={theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />} onClick={onToggleTheme}>
-            {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            {theme === 'dark' ? (isId ? 'Mode Terang' : 'Light Mode') : (isId ? 'Mode Gelap' : 'Dark Mode')}
           </Button>
         </BaseCard>
       </div>

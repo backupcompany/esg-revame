@@ -12,9 +12,6 @@ export function getInitialTheme(): Theme {
 export function setTheme(theme: Theme) {
   localStorage.setItem('esg_together_theme', theme);
   const root = document.documentElement;
-  if (theme === 'dark') {
-    root.classList.add('dark');
-  } else {
-    root.classList.remove('dark');
-  }
+  root.classList.toggle('dark', theme === 'dark');
+  root.style.colorScheme = theme;
 }

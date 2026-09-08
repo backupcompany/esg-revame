@@ -59,6 +59,7 @@ func New(cfg config.Config, pool *pgxpool.Pool) http.Handler {
 	r.MaxMultipartMemory = 12 << 20
 
 	r.GET("/api/health", s.health)
+	r.GET("/api/auth/me", s.limitPublic(60), s.me)
 
 	pub := r.Group("/api/public")
 	pub.Use(s.limitPublic(60))
@@ -82,7 +83,6 @@ func New(cfg config.Config, pool *pgxpool.Pool) http.Handler {
 	authed := r.Group("/api")
 	authed.Use(s.requireAuth)
 	{
-		authed.GET("/auth/me", s.me)
 		authed.POST("/auth/preferences", s.setPreferences)
 		authed.GET("/vendors", s.getVendors)
 		authed.POST("/vendors", s.upsertVendor)

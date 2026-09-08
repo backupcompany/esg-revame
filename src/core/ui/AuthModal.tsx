@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FirebaseError } from 'firebase/app';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { ShieldCheck, Building2, LogOut } from 'lucide-react';
 
 function ssoErrorMessage(err: unknown): string {
@@ -19,15 +20,19 @@ function ssoErrorMessage(err: unknown): string {
 }
 
 export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
-  const { dbUser, vendor, signInWithGoogle, signInWithMicrosoft, signInWithPassword, signInAsDemoSuperAdmin, signOut, loading, authError } = useAuth();
+  const { isId } = useLanguage();
+  const { dbUser, vendor, signInWithGoogle, signInWithMicrosoft, signInWithPassword, signInAsDemoSuperAdmin, signOut, authError } = useAuth();
   const [ssoError, setSsoError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const signedIn = Boolean(dbUser);
 
-  if (!isOpen) return null;
+  const handleSignOut = async () => {
+    await signOut();
+    onClose();
+  };
 
-  const runSso = async (fn: () => Promise<void>) => {
+  const runAuth = async (fn: () => Promise<void>) => {
     setSsoError(null);
     try {
       await fn();
@@ -37,17 +42,27 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fadeIn">
       <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 rounded-xl">
+            <div className={`p-2.5 rounded-xl ${signedIn ? 'bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400' : 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400'}`}>
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Masuk dengan SSO</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Google atau Microsoft · email harus ada di VOB</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {signedIn
+                  ? (isId ? 'Sesi akun' : 'Account session')
+                  : (isId ? 'Masuk dengan SSO' : 'Sign in with SSO')}
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {signedIn
+                  ? (isId ? 'Anda sudah masuk. Keluar akan mengakhiri sesi ini.' : 'You are signed in. Sign out ends this session.')
+                  : (isId ? 'Google atau Microsoft · email harus ada di VOB' : 'Google or Microsoft · email must be on the VOB roster')}
+              </p>
             </div>
           </div>
           <button
@@ -58,12 +73,7 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
           </button>
         </div>
 
-        {loading ? (
-          <div className="py-8 text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-emerald-500 border-t-transparent"></div>
-            <p className="mt-3 text-sm text-slate-600 dark:text-slate-400">Authenticating with server...</p>
-          </div>
-        ) : signedIn ? (
+        {signedIn ? (
           <div className="space-y-4">
             <div className="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2">
               <div className="flex items-center justify-between">
@@ -101,11 +111,12 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
             )}
 
             <button
-              onClick={() => { signOut(); onClose(); }}
+              type="button"
+              onClick={() => void handleSignOut()}
               className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 font-semibold rounded-xl transition"
             >
               <LogOut className="w-4 h-4" />
-              <span>Sign Out</span>
+              <span>{isId ? 'Keluar' : 'Sign Out'}</span>
             </button>
           </div>
         ) : (
@@ -120,15 +131,9 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
             )}
             <form
               className="space-y-2"
-              onSubmit={async (e) => {
+              onSubmit={(e) => {
                 e.preventDefault();
-                setSsoError(null);
-                try {
-                  await signInWithPassword(email, password);
-                  onClose();
-                } catch (err) {
-                  setSsoError(err instanceof Error ? err.message : 'Login gagal');
-                }
+                void runAuth(() => signInWithPassword(email, password));
               }}
             >
               <input
@@ -164,14 +169,14 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => void runSso(signInWithGoogle)}
+                onClick={() => void runAuth(signInWithGoogle)}
                 className="py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-xl"
               >
                 Google
               </button>
               <button
                 type="button"
-                onClick={() => void runSso(signInWithMicrosoft)}
+                onClick={() => void runAuth(signInWithMicrosoft)}
                 className="py-2.5 px-3 bg-white hover:bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-700"
               >
                 Microsoft
@@ -180,7 +185,7 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
             {import.meta.env.DEV && (
               <button
                 type="button"
-                onClick={() => void runSso(signInAsDemoSuperAdmin)}
+                onClick={() => void runAuth(signInAsDemoSuperAdmin)}
                 className="w-full text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 py-2"
               >
                 Demo super admin (local only)

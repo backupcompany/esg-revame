@@ -15,7 +15,6 @@ export function useActionsData() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<'cards' | 'grid'>('cards');
-  const [lang, setLang] = useState<'ID' | 'EN'>('ID');
   const [isProposeModalOpen, setIsProposeModalOpen] = useState<boolean>(false);
 
   const loadData = async () => {
@@ -76,8 +75,6 @@ export function useActionsData() {
     isLoading,
     viewMode,
     setViewMode,
-    lang,
-    setLang,
     isProposeModalOpen,
     setIsProposeModalOpen,
     refreshData: loadData,

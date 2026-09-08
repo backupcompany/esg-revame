@@ -2,6 +2,7 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import { getInitialTheme, setTheme } from './core/ui/theme';
 import { LanguageProvider } from './core/context/LanguageContext';
 import { AuthProvider } from './core/context/AuthContext';
 
@@ -32,6 +33,7 @@ function wipeClientStores() {
 }
 
 wipeClientStores();
+setTheme(getInitialTheme());
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

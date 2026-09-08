@@ -10,7 +10,7 @@ import { CorporateActionGrid } from './CorporateActionGrid';
 import { ProposeActionModal } from './ProposeActionModal';
 import { LessonPlayerModal } from '../../learn/components/LessonPlayerModal';
 import { useLanguage } from '../../../core/context/LanguageContext';
-import { PLACEHOLDER_IMAGE } from '../../../core/ui/assets';
+import { PLACEHOLDER_IMAGE, catalogImage } from '../../../core/ui/assets';
 import {
   Compass,
   Search,
@@ -433,10 +433,12 @@ export const ActionsView: React.FC<ActionsViewProps> = ({ onNavigate }) => {
                   {/* Card Image Banner with Overlay */}
                   <div className="relative h-44 w-full overflow-hidden bg-slate-100 dark:bg-slate-800">
                     <img
-                      src={act.imageUrl || PLACEHOLDER_IMAGE}
+                      src={catalogImage(act.imageUrl, 800)}
                       alt={displayTitle}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
+                      referrerPolicy="no-referrer"
+                      onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMAGE; }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/25 to-transparent" />
                     

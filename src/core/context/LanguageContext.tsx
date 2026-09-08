@@ -28,6 +28,10 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   });
 
   useEffect(() => {
+    document.documentElement.lang = lang === 'ID' ? 'id' : 'en';
+  }, [lang]);
+
+  useEffect(() => {
     if (dbUser?.preferredLang === 'EN' || dbUser?.preferredLang === 'ID') {
       setLangState(dbUser.preferredLang);
       try {

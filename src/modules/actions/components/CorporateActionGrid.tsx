@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ESGAction, ESGCommitment, ESGPillar } from '../../../core/types';
 import { PillarBadge, StatusBadge } from '../../../core/ui/Badges';
 import { Button } from '../../../core/ui/Button';
-import { PLACEHOLDER_IMAGE } from '../../../core/ui/assets';
+import { PLACEHOLDER_IMAGE, catalogImage } from '../../../core/ui/assets';
 import { ArrowUpDown, ChevronRight, Sparkles, CheckCircle2, Clock, Camera, FileText, ShieldAlert, ArrowUp, ArrowDown, BookmarkCheck, FileCheck, ShieldCheck, CircleDashed } from 'lucide-react';
 
 interface CorporateActionGridProps {
@@ -245,10 +245,12 @@ export const CorporateActionGrid: React.FC<CorporateActionGridProps> = ({
                     <td className="py-2.5 px-3 text-center">
                       <div className="w-11 h-9 rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shrink-0 mx-auto">
                         <img
-                          src={act.imageUrl || PLACEHOLDER_IMAGE}
+                          src={catalogImage(act.imageUrl, 400)}
                           alt={displayTitle}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                           loading="lazy"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMAGE; }}
                         />
                       </div>
                     </td>

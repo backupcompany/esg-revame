@@ -34,6 +34,7 @@ interface AuthContextType {
   vendorsList: VendorProfileServer[];
   allUsersList: DbUser[];
   loading: boolean;
+  authGate: 'in' | 'out' | null;
   authError: string | null;
   signInWithGoogle: () => Promise<void>;
   signInWithMicrosoft: () => Promise<void>;
@@ -52,6 +53,7 @@ const AuthContext = createContext<AuthContextType>({
   vendorsList: [],
   allUsersList: [],
   loading: true,
+  authGate: null,
   authError: null,
   signInWithGoogle: async () => {},
   signInWithMicrosoft: async () => {},
@@ -70,7 +72,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [vendorsList, setVendorsList] = useState<VendorProfileServer[]>([]);
   const [allUsersList, setAllUsersList] = useState<DbUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authGate, setAuthGate] = useState<'in' | 'out' | null>(null);
   const [authError, setAuthError] = useState<string | null>(null);
+
+  const withAuthGate = async <T,>(kind: 'in' | 'out', fn: () => Promise<T>): Promise<T> => {
+    setAuthGate(kind);
+    const started = Date.now();
+    try {
+      return await fn();
+    } finally {
+      const wait = 400 - (Date.now() - started);
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+      setAuthGate(null);
+    }
+  };
 
   const fetchServerData = async (hold = false): Promise<string | null> => {
     try {
@@ -91,6 +106,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return 'auth_failed';
       }
       const dataMe = await resMe.json();
+      if (!dataMe?.user) {
+        setDbUser(null);
+        setVendor(null);
+        setAuthError(null);
+        return 'guest';
+      }
       setDbUser(dataMe.user);
       setVendor(dataMe.vendor ?? null);
       setAuthError(null);
@@ -122,31 +143,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInAsDemoSuperAdmin = async () => {
-    const res = await apiFetch('/api/public/auth/demo-admin', { method: 'POST' });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(data.error || 'Demo login off');
-    }
-    setLoading(true);
-    const err = await fetchServerData();
-    if (err === 'not_invited' || err === 'forbidden') throw new Error('not_invited');
-    if (err) throw new Error('Login gagal');
+    await withAuthGate('in', async () => {
+      const res = await apiFetch('/api/public/auth/demo-admin', { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || 'Demo login off');
+      }
+      setLoading(true);
+      const err = await fetchServerData();
+      if (err === 'not_invited' || err === 'forbidden') throw new Error('not_invited');
+      if (err) throw new Error('Login gagal');
+    });
   };
 
   const signInWithPassword = async (email: string, password: string) => {
-    const res = await apiFetch('/api/public/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+    await withAuthGate('in', async () => {
+      const res = await apiFetch('/api/public/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || 'Login gagal');
+      }
+      setLoading(true);
+      const err = await fetchServerData();
+      if (err === 'not_invited' || err === 'forbidden') throw new Error('not_invited');
+      if (err) throw new Error('Login gagal');
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(data.error || 'Login gagal');
-    }
-    setLoading(true);
-    const err = await fetchServerData();
-    if (err === 'not_invited' || err === 'forbidden') throw new Error('not_invited');
-    if (err) throw new Error('Login gagal');
   };
 
   useEffect(() => {
@@ -193,26 +218,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithGoogle = async () => {
-    await signInWithPopup(auth, googleAuthProvider);
-    await finishSso();
+    await withAuthGate('in', async () => {
+      await signInWithPopup(auth, googleAuthProvider);
+      await finishSso();
+    });
   };
 
   const signInWithMicrosoft = async () => {
-    await signInWithPopup(auth, microsoftAuthProvider);
-    await finishSso();
+    await withAuthGate('in', async () => {
+      await signInWithPopup(auth, microsoftAuthProvider);
+      await finishSso();
+    });
   };
 
   const signOut = async () => {
-    localStorage.removeItem('demo_admin');
-    localStorage.removeItem('demo_token');
-    await apiFetch('/api/public/auth/logout', { method: 'POST' }).catch(() => {});
-    await fbSignOut(auth).catch(() => {});
-    setUser(null);
-    setDbUser(null);
-    setVendor(null);
-    setVendorsList([]);
-    setAllUsersList([]);
-    setAuthError(null);
+    await withAuthGate('out', async () => {
+      localStorage.removeItem('demo_admin');
+      localStorage.removeItem('demo_token');
+      await apiFetch('/api/public/auth/logout', { method: 'POST' }).catch(() => {});
+      await fbSignOut(auth).catch(() => {});
+      setUser(null);
+      setDbUser(null);
+      setVendor(null);
+      setVendorsList([]);
+      setAllUsersList([]);
+      setAuthError(null);
+    });
   };
 
   const refreshAuth = async () => {
@@ -250,6 +281,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         vendorsList,
         allUsersList,
         loading,
+        authGate,
         authError,
         signInWithGoogle,
         signInWithMicrosoft,

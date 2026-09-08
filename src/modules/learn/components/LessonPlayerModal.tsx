@@ -4,6 +4,7 @@ import { Modal } from '../../../core/ui/FeedbackStates';
 import { Button } from '../../../core/ui/Button';
 import { PillarBadge } from '../../../core/ui/Badges';
 import { LearningModule, ESGAction } from '../../../core/types';
+import { useLanguage } from '../../../core/context/LanguageContext';
 import { actionService } from '../../../core/services/actionService';
 import { learnService } from '../../../core/services/learnService';
 import {
@@ -51,6 +52,7 @@ export const LessonPlayerModal: React.FC<LessonPlayerModalProps> = ({
   onTakeAction,
   onModuleCompleted
 }) => {
+  const { isId } = useLanguage();
   const [showCompletionState, setShowCompletionState] = useState(false);
   const [relevantActions, setRelevantActions] = useState<ESGAction[]>([]);
   const [isLoadingActions, setIsLoadingActions] = useState(false);
@@ -162,7 +164,9 @@ export const LessonPlayerModal: React.FC<LessonPlayerModalProps> = ({
       isOpen={!!module}
       onClose={onClose}
       maxWidth="2xl"
-      title={showCompletionState ? 'Modul Selesai & Penerapan Aksi Nyata' : (module.titleId || module.title)}
+      title={showCompletionState
+        ? (isId ? 'Modul Selesai & Penerapan Aksi Nyata' : 'Module complete — apply it in a real action')
+        : (isId ? (module.titleId || module.title) : module.title)}
     >
       <div className="space-y-5 text-left select-none" onKeyDown={handleKeyDown} tabIndex={0}>
         {/* =========================================================================
@@ -176,7 +180,7 @@ export const LessonPlayerModal: React.FC<LessonPlayerModalProps> = ({
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-1 rounded-md bg-emerald-500/30 text-emerald-200 font-extrabold text-[11px] uppercase tracking-wider flex items-center gap-1">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Modul Berhasil Dikuasai
+                      <Sparkles className="w-3.5 h-3.5 text-amber-300" /> {isId ? 'Modul Berhasil Dikuasai' : 'Module mastered'}
                     </span>
                     <span className="px-2 py-0.5 rounded-md bg-black/40 text-slate-200 text-[11px] font-bold">
                       Pilar {module.pillar}
@@ -184,7 +188,7 @@ export const LessonPlayerModal: React.FC<LessonPlayerModalProps> = ({
                   </div>
 
                   <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-tight">
-                    {module.titleId || module.title}
+                    {isId ? (module.titleId || module.title) : module.title}
                   </h2>
 
                   <p className="text-xs text-emerald-100/90 leading-relaxed">
@@ -272,7 +276,7 @@ export const LessonPlayerModal: React.FC<LessonPlayerModalProps> = ({
                         </div>
 
                         <h4 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 leading-snug">
-                          {act.titleId || act.title}
+                          {isId ? (act.titleId || act.title) : act.title}
                         </h4>
 
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">

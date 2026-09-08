@@ -3,6 +3,7 @@ import { Modal } from '../../../core/ui/FeedbackStates';
 import { Button } from '../../../core/ui/Button';
 import { PillarBadge } from '../../../core/ui/Badges';
 import { ESGAction, ESGCommitment, LearningModule } from '../../../core/types';
+import { PLACEHOLDER_IMAGE, catalogImage } from '../../../core/ui/assets';
 import { EsgFrameworkBadge } from './EsgFrameworkBadge';
 import { Sparkles, Clock, CheckCircle2, Lightbulb, FileText, Camera, ShieldAlert, Calendar, Tag, Award, Globe, BookOpen, ArrowRight, Play } from 'lucide-react';
 
@@ -45,9 +46,11 @@ export const ActionDetailModal: React.FC<ActionDetailModalProps> = ({
         {action.imageUrl && (
           <div className="relative h-44 w-full rounded-xl overflow-hidden shadow-xs border border-slate-200 dark:border-slate-800">
             <img
-              src={action.imageUrl}
+              src={catalogImage(action.imageUrl, 1600)}
               alt={displayTitle}
               className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+              onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMAGE; }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/30 to-transparent" />
             <div className="absolute top-3 left-3 flex items-center gap-2">

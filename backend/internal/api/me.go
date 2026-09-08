@@ -15,7 +15,17 @@ import (
 var errNotInvited = errors.New("not_invited")
 
 func (s *Server) me(c *gin.Context) {
-	p := principal(c)
+	raw := bearerOrCookie(c)
+	if raw == "" {
+		httpx.JSON(c.Writer, http.StatusOK, gin.H{"user": nil, "vendor": nil})
+		return
+	}
+	p, err := s.auth.Verify(c.Request.Context(), raw)
+	if err != nil {
+		httpx.JSON(c.Writer, http.StatusOK, gin.H{"user": nil, "vendor": nil})
+		return
+	}
+
 	ctx := c.Request.Context()
 	email := strings.ToLower(strings.TrimSpace(p.Email))
 	name := strings.TrimSpace(p.Name)

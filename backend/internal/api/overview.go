@@ -71,7 +71,7 @@ func (s *Server) impactSummary(c *gin.Context) {
 		SELECT ac.default_metric_name, SUM(COALESCE(va.quantity_reported,1) * COALESCE(ac.impact_multiplier,0))
 		FROM vendor_actions va
 		JOIN action_catalog ac ON ac.id = va.action_id
-		WHERE va.vendor_id = $1 AND va.status IN ('Verified','Submitted','In Progress')
+		WHERE va.vendor_id = $1 AND va.status = 'Verified'
 		GROUP BY ac.default_metric_name
 	`, vendorID)
 	if err != nil {

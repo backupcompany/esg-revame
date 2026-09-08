@@ -21,8 +21,24 @@ import { NewsletterLandingView } from './modules/newsletter/components/Newslette
 import { AuthModal } from './core/ui/AuthModal';
 import { useAuth } from './core/context/AuthContext';
 
+function AuthGateOverlay({ kind }: { kind: 'in' | 'out' }) {
+  return (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-md"
+      role="status"
+      aria-live="polite"
+    >
+      <div
+        className={`h-10 w-10 rounded-full animate-spin border-[3px] border-t-transparent ${
+          kind === 'out' ? 'border-blue-500' : 'border-emerald-500'
+        }`}
+      />
+    </div>
+  );
+}
+
 export default function App() {
-  const { dbUser, vendor, loading: authLoading, refreshAuth } = useAuth();
+  const { dbUser, vendor, loading: authLoading, authGate, refreshAuth } = useAuth();
   const canAccessAdmin = dbUser?.role === 'super_admin' || dbUser?.role === 'admin';
   const isOperator = canAccessAdmin;
   const needsOnboarding = Boolean(dbUser && vendor && !vendor.onboardingCompleted && !isOperator);
@@ -30,7 +46,7 @@ export default function App() {
   // Main view router: 'public' (newsletter landing) | 'vendor' (vendor portal) | 'admin' (admin operations & CMS) | 'onboarding'
   const [currentView, setCurrentView] = useState<'public' | 'vendor' | 'admin' | 'onboarding'>('public');
   const [activeTab, setActiveTab] = useState<PrimaryTab>('home');
-  const [theme, setThemeState] = useState<'light' | 'dark'>('light');
+  const [theme, setThemeState] = useState<'light' | 'dark'>(getInitialTheme);
   const [reportModalCommitmentId, setReportModalCommitmentId] = useState<string | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
 
@@ -107,9 +123,16 @@ export default function App() {
     setCurrentView('vendor');
   };
 
+  const gate = authGate ? <AuthGateOverlay kind={authGate} /> : null;
+
   // 1. Onboarding View
   if (currentView === 'onboarding') {
-    return <OnboardingFlow onComplete={handleFinishOnboarding} />;
+    return (
+      <>
+        <OnboardingFlow onComplete={handleFinishOnboarding} />
+        {gate}
+      </>
+    );
   }
 
   // 2. Public Newsletter Landing View (Default for general public & unauthenticated visitors)
@@ -128,6 +151,7 @@ export default function App() {
           onOpenAuth={() => setIsAuthModalOpen(true)}
         />
         <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+        {gate}
       </>
     );
   }
@@ -212,6 +236,7 @@ export default function App() {
         badgeText={celebration.badgeText}
         pointsEarned={celebration.pointsEarned}
       />
+      {gate}
     </div>
   );
 }

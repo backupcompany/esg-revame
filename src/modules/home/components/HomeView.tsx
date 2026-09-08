@@ -5,6 +5,7 @@ import { Button } from '../../../core/ui/Button';
 import { LevelBadge, StatusBadge, PillarBadge } from '../../../core/ui/Badges';
 import { DuolingoMilestonePath, ProgressBar } from '../../../core/ui/Progress';
 import { PrimaryTab } from '../../../core/types';
+import { useLanguage } from '../../../core/context/LanguageContext';
 import {
   Sparkles,
   ArrowRight,
@@ -28,6 +29,7 @@ interface HomeViewProps {
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModal }) => {
+  const { isId } = useLanguage();
   const {
     vendor,
     commitments,
@@ -43,7 +45,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
     return (
       <div className="max-w-5xl mx-auto py-12 px-4 text-center space-y-4">
         <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
-        <p className="text-sm font-medium text-slate-500">Loading ESG Command Center...</p>
+        <p className="text-sm font-medium text-slate-500">{isId ? 'Memuat pusat kendali ESG...' : 'Loading ESG Command Center...'}</p>
       </div>
     );
   }
@@ -61,8 +63,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
   const milestones = [
     {
       id: 'm0',
-      title: 'Stage 0: Code of Ethics Passcode',
-      subtitle: isCodeOfEthicsSigned ? 'Signed & Verified' : 'Required: Sign Code of Conduct',
+      title: isId ? 'Tahap 0: Kode Etik Pemasok' : 'Stage 0: Code of Ethics Passcode',
+      subtitle: isCodeOfEthicsSigned
+        ? (isId ? 'Sudah ditandatangani' : 'Signed & Verified')
+        : (isId ? 'Wajib: tanda tangani Kode Etik' : 'Required: Sign Code of Conduct'),
       status: (isCodeOfEthicsSigned ? 'completed' : 'active') as any,
       icon: <FileCheck className="w-6 h-6" />,
       levelNumber: 0,
@@ -70,14 +74,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
     },
     {
       id: 'm1',
-      title: 'Starter: Small Wins',
-      subtitle: 'Complete 1 basic ESG action',
+      title: isId ? 'Starter: Langkah Awal' : 'Starter: Small Wins',
+      subtitle: isId ? 'Selesaikan 1 aksi ESG dasar' : 'Complete 1 basic ESG action',
       status: (!isCodeOfEthicsSigned ? 'locked' : (completedCount >= 1 || levelRank > 1 ? 'completed' : 'active')) as any,
       icon: <Sparkles className="w-6 h-6" />,
       levelNumber: 1,
       onClick: () => {
         if (!isCodeOfEthicsSigned) {
-          alert('Mohon tandatangani Surat Pernyataan Kode Etik Pemasok (Stage 0) terlebih dahulu sebagai syarat pembuka ESG Journey.');
+          alert(isId
+            ? 'Mohon tandatangani Surat Pernyataan Kode Etik Pemasok (Tahap 0) terlebih dahulu sebagai syarat pembuka ESG Journey.'
+            : 'Please sign the Supplier Code of Conduct (Stage 0) before starting the ESG journey.');
           onNavigate('declaration');
           return;
         }
@@ -86,8 +92,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
     },
     {
       id: 'm2',
-      title: 'Bronze: Active Participant',
-      subtitle: 'Diagnostic Contributor (36%+) → Bronze badge',
+      title: isId ? 'Bronze: Partisipan Aktif' : 'Bronze: Active Participant',
+      subtitle: isId ? 'Skor asesmen 36%+ → lencana Bronze' : 'Diagnostic Contributor (36%+) → Bronze badge',
       status: (!isCodeOfEthicsSigned ? 'locked' : (levelRank >= 2 ? (levelRank >= 3 ? 'completed' : 'active') : 'locked')) as any,
       icon: <Award className="w-6 h-6" />,
       levelNumber: 2,
@@ -101,8 +107,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
     },
     {
       id: 'm3',
-      title: 'Silver: Sustainable Partner',
-      subtitle: 'Diagnostic Practitioner (61%+) → Silver badge',
+      title: isId ? 'Silver: Mitra Berkelanjutan' : 'Silver: Sustainable Partner',
+      subtitle: isId ? 'Skor asesmen 61%+ → lencana Silver' : 'Diagnostic Practitioner (61%+) → Silver badge',
       status: (!isCodeOfEthicsSigned ? 'locked' : (levelRank >= 3 ? (levelRank >= 4 ? 'completed' : 'active') : 'locked')) as any,
       icon: <ShieldCheck className="w-6 h-6" />,
       levelNumber: 3,
@@ -116,8 +122,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
     },
     {
       id: 'm4',
-      title: 'Gold: Ecosystem Champion',
-      subtitle: 'Diagnostic Leader (86%+) → Gold badge',
+      title: isId ? 'Gold: Juara Ekosistem' : 'Gold: Ecosystem Champion',
+      subtitle: isId ? 'Skor asesmen 86%+ → lencana Gold' : 'Diagnostic Leader (86%+) → Gold badge',
       status: (!isCodeOfEthicsSigned ? 'locked' : (levelRank >= 4 ? 'completed' : 'locked')) as any,
       icon: <TrendingUp className="w-6 h-6" />,
       levelNumber: 4,
@@ -150,17 +156,18 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
               <LevelBadge level={vendor.esgMaturityLevel} size="md" />
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              Welcome back, {vendor.name}!
+              {isId ? `Selamat datang, ${vendor.name}!` : `Welcome back, ${vendor.name}!`}
             </h1>
             <p className="text-sm text-emerald-100 max-w-xl">
-              Diagnostic maturity score from the last assessment: <strong className="text-white">{vendor.esgScore}/100</strong>.
-              {' '}{completedCount} verified action{completedCount === 1 ? '' : 's'} count toward impact totals.
+              {isId
+                ? <>Skor kematangan asesmen terakhir: <strong className="text-white">{vendor.esgScore}/100</strong>. {completedCount} aksi terverifikasi masuk ke total dampak.</>
+                : <>Diagnostic maturity score from the last assessment: <strong className="text-white">{vendor.esgScore}/100</strong>. {completedCount} verified action{completedCount === 1 ? '' : 's'} count toward impact totals.</>}
             </p>
           </div>
 
           <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/20 min-w-[220px]">
             <div className="text-xs font-semibold uppercase tracking-wider text-emerald-200 mb-1">
-              Assessment score
+              {isId ? 'Skor asesmen' : 'Assessment score'}
             </div>
             <div className="flex items-baseline gap-2 mb-2">
               <span className="text-3xl font-black">{vendor.esgScore}</span>
@@ -181,17 +188,19 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-extrabold uppercase tracking-wide text-[#0f5238] dark:text-emerald-300">
-                  Diagnostic Tool
+                  {isId ? 'Alat Diagnostik' : 'Diagnostic Tool'}
                 </span>
                 <span className="px-2 py-0.5 bg-emerald-100 text-[#0f5238] dark:bg-emerald-950 dark:text-emerald-300 rounded-full text-[10px] font-bold">
-                  15 Diagnostic Questions
+                  {isId ? '15 Pertanyaan' : '15 Diagnostic Questions'}
                 </span>
               </div>
               <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mt-0.5">
-                ESG Starter Assessment
+                {isId ? 'Asesmen ESG Awal' : 'ESG Starter Assessment'}
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                A simple diagnostic tool to help identify practical ESG opportunities across Environmental, Social, and Governance pillars.
+                {isId
+                  ? 'Diagnostik singkat untuk menemukan peluang ESG praktis di pilar Lingkungan, Sosial, dan Tata Kelola.'
+                  : 'A simple diagnostic tool to help identify practical ESG opportunities across Environmental, Social, and Governance pillars.'}
               </p>
             </div>
           </div>
@@ -203,7 +212,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
             onClick={() => onNavigate('assessment')}
             className="self-start sm:self-center shrink-0 border-[#0f5238] text-[#0f5238] dark:text-emerald-300 dark:border-emerald-700 hover:bg-emerald-50"
           >
-            Take Assessment
+            {isId ? 'Mulai Asesmen' : 'Take Assessment'}
           </Button>
         </div>
       </BaseCard>
@@ -218,7 +227,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-extrabold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
-                  Recommended Next Action
+                  {isId ? 'Aksi berikutnya' : 'Recommended Next Action'}
                 </span>
                 <span className="px-2 py-0.5 bg-amber-100 text-amber-900 rounded-full text-[10px] font-bold">
                   High Impact
@@ -240,7 +249,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
             onClick={() => onNavigate('actions')}
             className="self-start sm:self-center shrink-0"
           >
-            Start Action
+            {isId ? 'Mulai Aksi' : 'Start Action'}
           </Button>
         </div>
       </BaseCard>
@@ -251,10 +260,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
         <div className="lg:col-span-5 space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-emerald-500" /> Your ESG Journey
+              <Sparkles className="w-5 h-5 text-emerald-500" /> {isId ? 'Perjalanan ESG Anda' : 'Your ESG Journey'}
             </h2>
             <Button variant="ghost" size="sm" onClick={() => onNavigate('learn')}>
-              Learn Modules
+              {isId ? 'Modul Belajar' : 'Learn Modules'}
             </Button>
           </div>
 
@@ -269,20 +278,20 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-amber-500" /> Active Commitments ({activeCommitments.length})
+                <Clock className="w-5 h-5 text-amber-500" /> {isId ? `Komitmen Aktif (${activeCommitments.length})` : `Active Commitments (${activeCommitments.length})`}
               </h2>
               <Button variant="ghost" size="sm" onClick={() => onNavigate('actions')}>
-                Discover More
+                {isId ? 'Lihat Lainnya' : 'Discover More'}
               </Button>
             </div>
 
             {activeCommitments.length === 0 ? (
               <BaseCard padding="md" className="text-center py-8">
                 <Compass className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No active commitments yet</p>
-                <p className="text-xs text-slate-500 mb-4">Pick a quick ESG action to start building your score.</p>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{isId ? 'Belum ada komitmen aktif' : 'No active commitments yet'}</p>
+                <p className="text-xs text-slate-500 mb-4">{isId ? 'Pilih aksi ESG untuk mulai menabung skor.' : 'Pick a quick ESG action to start building your score.'}</p>
                 <Button variant="primary" size="sm" onClick={() => onNavigate('actions')}>
-                  Browse ESG Actions
+                  {isId ? 'Jelajahi Aksi ESG' : 'Browse ESG Actions'}
                 </Button>
               </BaseCard>
             ) : (
@@ -299,10 +308,10 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
                           <StatusBadge status={cmt.status} />
                         </div>
                         <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                          {action.title}
+                          {isId ? (action.titleId || action.title) : action.title}
                         </h4>
                         <p className="text-xs text-slate-500">
-                          Committed on {cmt.committedDate} • Target: {action.impactMetricLabel}
+                          {isId ? `Komitmen ${cmt.committedDate} • Target: ${action.impactMetricLabelId || action.impactMetricLabel}` : `Committed on ${cmt.committedDate} • Target: ${action.impactMetricLabel}`}
                         </p>
                       </div>
 
@@ -313,7 +322,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
                         onClick={() => onOpenReportModal(cmt.id)}
                         className="shrink-0 self-start sm:self-center"
                       >
-                        {cmt.status === 'Submitted' ? 'Update Evidence' : 'Report & Upload Evidence'}
+                        {cmt.status === 'Submitted' ? (isId ? 'Perbarui Bukti' : 'Update Evidence') : (isId ? 'Lapor & Unggah Bukti' : 'Report & Upload Evidence')}
                       </Button>
                     </BaseCard>
                   );
@@ -327,39 +336,39 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-indigo-500" /> Ecosystem Collective Impact
+                  <Users className="w-5 h-5 text-indigo-500" /> {isId ? 'Dampak Kolektif Ekosistem' : 'Ecosystem Collective Impact'}
                 </h2>
                 <Button variant="ghost" size="sm" onClick={() => onNavigate('impact')}>
-                  Full Report
+                  {isId ? 'Laporan Penuh' : 'Full Report'}
                 </Button>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <MetricCard
-                  title="Trees Planted"
+                  title={isId ? 'Pohon Tertanam' : 'Trees Planted'}
                   value={collectiveMetrics.totals.treesPlanted}
-                  unit="trees"
+                  unit={isId ? 'pohon' : 'trees'}
                   icon={<Trees className="w-4 h-4" />}
                   colorTheme="emerald"
                 />
                 <MetricCard
-                  title="Energy Saved"
+                  title={isId ? 'Energi Terhemat' : 'Energy Saved'}
                   value={collectiveMetrics.totals.energySavedKwh}
                   unit="kWh"
                   icon={<Zap className="w-4 h-4" />}
                   colorTheme="amber"
                 />
                 <MetricCard
-                  title="Waste Recycled"
+                  title={isId ? 'Limbah Didaur Ulang' : 'Waste Recycled'}
                   value={collectiveMetrics.totals.wasteRecycledKg}
                   unit="kg"
                   icon={<Recycle className="w-4 h-4" />}
                   colorTheme="blue"
                 />
                 <MetricCard
-                  title="People Benefited"
+                  title={isId ? 'Penerima Manfaat' : 'People Benefited'}
                   value={collectiveMetrics.totals.peopleBenefited}
-                  unit="people"
+                  unit={isId ? 'orang' : 'people'}
                   icon={<Users className="w-4 h-4" />}
                   colorTheme="indigo"
                 />
