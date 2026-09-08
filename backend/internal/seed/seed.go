@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"esg-together/backend/internal/authn"
 )
 
 func IfEmpty(ctx context.Context, pool *pgxpool.Pool, testEmail string) error {
@@ -39,7 +41,10 @@ func IfEmpty(ctx context.Context, pool *pgxpool.Pool, testEmail string) error {
 	if err := seedCategories(ctx, pool); err != nil {
 		return err
 	}
-	return seedTestAllowlist(ctx, pool, testEmail)
+	if err := seedTestAllowlist(ctx, pool, testEmail); err != nil {
+		return err
+	}
+	return seedUATAccounts(ctx, pool)
 }
 
 func seedTestAllowlist(ctx context.Context, pool *pgxpool.Pool, email string) error {
@@ -57,6 +62,43 @@ func seedTestAllowlist(ctx context.Context, pool *pgxpool.Pool, email string) er
 		  )
 	`, email)
 	return err
+}
+
+func seedUATAccounts(ctx context.Context, pool *pgxpool.Pool) error {
+	var vendorID *int
+	var id int
+	if pool.QueryRow(ctx, `SELECT id FROM vendors WHERE company_name = 'PT Nusantara Pro' LIMIT 1`).Scan(&id) == nil {
+		vendorID = &id
+	} else if pool.QueryRow(ctx, `SELECT id FROM vendors ORDER BY id LIMIT 1`).Scan(&id) == nil {
+		vendorID = &id
+	}
+	for _, a := range authn.UATAccounts {
+		var vid any
+		if a.Vendor && vendorID != nil {
+			vid = *vendorID
+		}
+		if _, err := pool.Exec(ctx, `
+			INSERT INTO users (uid, email, name, role, vendor_id)
+			VALUES ($1, $2, $3, $4, $5)
+			ON CONFLICT (uid) DO UPDATE
+			SET email = EXCLUDED.email, name = EXCLUDED.name, role = EXCLUDED.role,
+			    vendor_id = COALESCE(EXCLUDED.vendor_id, users.vendor_id)
+		`, a.UID, a.Email, a.Name, a.Role, vid); err != nil {
+			return fmt.Errorf("uat user %s: %w", a.Email, err)
+		}
+		if a.Vendor && vendorID != nil {
+			if _, err := pool.Exec(ctx, `
+				INSERT INTO vendor_allowed_emails (vendor_id, email)
+				SELECT $1, $2
+				WHERE NOT EXISTS (
+					SELECT 1 FROM vendor_allowed_emails WHERE lower(email) = $2
+				)
+			`, *vendorID, a.Email); err != nil {
+				return fmt.Errorf("uat allowlist %s: %w", a.Email, err)
+			}
+		}
+	}
+	return nil
 }
 
 func seedActions(ctx context.Context, pool *pgxpool.Pool) error {

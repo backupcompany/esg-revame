@@ -61,6 +61,9 @@ func (v *Verifier) Verify(ctx context.Context, raw string) (Principal, error) {
 				Name:  v.cfg.DemoTestName,
 			}, nil
 		}
+		if p, ok := ParseUAT(v.cfg.DemoTestToken, raw); ok {
+			return p, nil
+		}
 	}
 	if v.cfg.FirebaseWebAPIKey == "" || v.cfg.FirebaseLookupURL == "" {
 		return Principal{}, fmt.Errorf("firebase web api key missing")

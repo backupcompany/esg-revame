@@ -97,6 +97,34 @@ func TestDemoLoginSetsHttpOnlyCookie(t *testing.T) {
 	}
 }
 
+func TestUATRoleLoginSetsCookie(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
+	h := New(config.Config{
+		AllowDemo:     true,
+		TestEmail:     "pic.uat@esg-together.test",
+		TestPassword:  "test-pass-1",
+		DemoTestToken: "test-token",
+	}, &pgxpool.Pool{})
+	body := `{"email":"super.uat@esg-together.test","password":"test-pass-1"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/public/auth/login", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("code %d body %s", w.Code, w.Body.String())
+	}
+	var found *http.Cookie
+	for _, c := range w.Result().Cookies() {
+		if c.Name == sessionCookie {
+			found = c
+			break
+		}
+	}
+	if found == nil || !strings.HasPrefix(found.Value, "v1.") {
+		t.Fatal("missing uat session cookie")
+	}
+}
+
 func TestRequireAuthCookieRejectedWhenDemoOff(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	h := New(config.Config{AllowDemo: false}, &pgxpool.Pool{})

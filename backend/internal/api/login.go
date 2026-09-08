@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 
+	"esg-together/backend/internal/authn"
 	"esg-together/backend/internal/httpx"
 )
 
@@ -30,11 +31,8 @@ func (s *Server) demoPasswordLogin(c *gin.Context) {
 		httpx.Error(c.Writer, http.StatusUnauthorized, "invalid email or password")
 		return
 	}
-	wantEmail := sha256.Sum256([]byte(s.cfg.TestEmail))
-	gotEmail := sha256.Sum256([]byte(email))
-	okEmail := subtle.ConstantTimeCompare(wantEmail[:], gotEmail[:]) == 1
 	okPass := s.demoPassHash != nil && bcrypt.CompareHashAndPassword(s.demoPassHash, []byte(body.Password)) == nil
-	if !okEmail || !okPass {
+	if !okPass {
 		httpx.Error(c.Writer, http.StatusUnauthorized, "invalid email or password")
 		return
 	}
@@ -42,7 +40,19 @@ func (s *Server) demoPasswordLogin(c *gin.Context) {
 		httpx.Error(c.Writer, http.StatusForbidden, "password login is demo-only")
 		return
 	}
-	sessionCookieSet(c.Writer, c.Request, s.cfg.DemoTestToken)
+	wantEmail := sha256.Sum256([]byte(s.cfg.TestEmail))
+	gotEmail := sha256.Sum256([]byte(email))
+	if subtle.ConstantTimeCompare(wantEmail[:], gotEmail[:]) == 1 {
+		sessionCookieSet(c.Writer, c.Request, s.cfg.DemoTestToken)
+		httpx.JSON(c.Writer, http.StatusOK, gin.H{"ok": true})
+		return
+	}
+	acct, ok := authn.UATByEmail(email)
+	if !ok {
+		httpx.Error(c.Writer, http.StatusUnauthorized, "invalid email or password")
+		return
+	}
+	sessionCookieSet(c.Writer, c.Request, authn.MintUAT(s.cfg.DemoTestToken, acct.UID, acct.Email, acct.Name))
 	httpx.JSON(c.Writer, http.StatusOK, gin.H{"ok": true})
 }
 
