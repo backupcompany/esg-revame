@@ -15,6 +15,7 @@ import { ArticleReaderModal } from './ArticleReaderModal';
 import { GuideReaderModal } from './GuideReaderModal';
 import { PLACEHOLDER_IMAGE } from '../../../core/ui/assets';
 import { LanguageToggle, AccountButton } from '../../../core/ui/Navigation';
+import { useAuth } from '../../../core/context/AuthContext';
 import { useLanguage } from '../../../core/context/LanguageContext';
 import { HeroCarousel } from './HeroCarousel';
 import { SustainabilityGallery } from './SustainabilityGallery';
@@ -69,6 +70,9 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
   onOpenAuth
 }) => {
   const { isId } = useLanguage();
+  const { dbUser } = useAuth();
+  const signedIn = Boolean(dbUser);
+  const canAccessAdmin = dbUser?.role === 'super_admin' || dbUser?.role === 'admin';
   const [heroSlides, setHeroSlides] = useState<HeroCarouselSlide[]>([]);
   const [galleryItems, setGalleryItems] = useState<SustainabilityGalleryItem[]>([]);
   const [articles, setArticles] = useState<NewsletterArticle[]>([]);
@@ -188,7 +192,7 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
                   Siloam ESG Horizon
                 </span>
                 <span className="hidden sm:inline px-2 py-0.5 bg-emerald-100 text-[#0f5238] dark:bg-emerald-950 dark:text-emerald-300 rounded-md text-[10px] font-bold uppercase">
-                  {isId ? 'Portal Publik & CMS' : 'Public Portal & CMS'}
+                  {isId ? 'Portal Publik' : 'Public Portal'}
                 </span>
               </div>
               <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
@@ -218,23 +222,27 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
 
             {onOpenAuth && <AccountButton onClick={onOpenAuth} />}
 
-            <button
-              onClick={() => onNavigateToVendor('home')}
-              className="px-3 sm:px-4 py-2 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer"
-            >
-              <Building2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="hidden sm:inline">Portal Mitra Vendor</span>
-              <span className="sm:hidden">Vendor</span>
-            </button>
+            {signedIn && (
+              <button
+                onClick={() => onNavigateToVendor('home')}
+                className="px-3 sm:px-4 py-2 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+              >
+                <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="hidden sm:inline">Portal Mitra Vendor</span>
+                <span className="sm:hidden">Vendor</span>
+              </button>
+            )}
 
-            <button
-              onClick={onNavigateToAdmin}
-              className="px-3 sm:px-4 py-2 rounded-lg text-xs font-bold bg-[#0f5238] hover:bg-[#0f5238]/90 text-white transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Admin CMS</span>
-              <span className="sm:hidden">CMS</span>
-            </button>
+            {signedIn && canAccessAdmin && (
+              <button
+                onClick={onNavigateToAdmin}
+                className="px-3 sm:px-4 py-2 rounded-lg text-xs font-bold bg-[#0f5238] hover:bg-[#0f5238]/90 text-white transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Admin CMS</span>
+                <span className="sm:hidden">CMS</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -765,15 +773,21 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
             </div>
 
             <div className="flex items-center gap-4 text-xs font-semibold">
-              <button onClick={() => onNavigateToVendor('home')} className="hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer">
-                Portal Vendor
-              </button>
-              <button onClick={onNavigateToAdmin} className="hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer">
-                Admin CMS
-              </button>
-              <button onClick={onStartOnboarding} className="hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer">
-                Daftar Mitra
-              </button>
+              {signedIn && (
+                <button onClick={() => onNavigateToVendor('home')} className="hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer">
+                  Portal Vendor
+                </button>
+              )}
+              {signedIn && canAccessAdmin && (
+                <button onClick={onNavigateToAdmin} className="hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer">
+                  Admin CMS
+                </button>
+              )}
+              {!signedIn && (
+                <button onClick={onStartOnboarding} className="hover:text-slate-900 dark:hover:text-slate-100 cursor-pointer">
+                  Daftar Mitra
+                </button>
+              )}
             </div>
           </div>
 
