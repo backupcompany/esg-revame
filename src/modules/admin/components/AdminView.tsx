@@ -74,9 +74,15 @@ export const AdminView: React.FC = () => {
                 Siloam ESG Orchestrator ({dbUser?.role ? dbUser.role.replace('_', ' ').toUpperCase() : 'ADMIN'})
               </span>
             </div>
-            <h1 className="text-2xl font-black">Corporate ESG Review & Administration Portal</h1>
+            <h1 className="text-xl sm:text-2xl font-black">
+              <span className="md:hidden">ESG Admin Portal</span>
+              <span className="hidden md:inline">Corporate ESG Review & Administration Portal</span>
+            </h1>
             <p className="text-xs text-emerald-100 max-w-xl">
+              <span className="md:hidden">Review grid vendor, audit bukti, kelola katalog & CMS.</span>
+              <span className="hidden md:inline">
               Review corporate vendor ESG grids, manage company email rosters with Excel bulk upload, audit sustainability proofs, and govern supply chain standards.
+              </span>
             </p>
           </div>
 
@@ -89,47 +95,50 @@ export const AdminView: React.FC = () => {
         </div>
       </BaseCard>
 
-      {/* Admin Primary Tabs */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
+      {/* Admin Primary Tabs — horizontal scroll on mobile */}
+      <div className="flex flex-nowrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto scrollbar-none -mx-1 px-1">
         {isAdminOrSuper && (
           <button
             onClick={() => setAdminTab('corporate-grid')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               adminTab === 'corporate-grid'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
             }`}
           >
-            <Building2 className="w-4 h-4" />
-            <span>Corporate Grid & ESG Dashboard</span>
+            <Building2 className="w-4 h-4 shrink-0" />
+            <span className="md:hidden">Grid</span>
+            <span className="hidden md:inline">Corporate Grid & ESG Dashboard</span>
           </button>
         )}
 
         {isSuperAdmin && (
           <button
             onClick={() => setAdminTab('superadmin')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               adminTab === 'superadmin'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
             }`}
           >
-            <FileSpreadsheet className="w-4 h-4" />
-            <span>Superadmin & Excel Upload</span>
+            <FileSpreadsheet className="w-4 h-4 shrink-0" />
+            <span className="md:hidden">Excel</span>
+            <span className="hidden md:inline">Superadmin & Excel Upload</span>
           </button>
         )}
 
         {isAdminOrSuper && (
           <button
             onClick={() => setAdminTab('audit')}
-            className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+            className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
               adminTab === 'audit'
                 ? 'bg-emerald-600 text-white shadow-xs'
                 : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
             }`}
           >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Audit Bukti ({queue.length})</span>
+            <ShieldCheck className="w-4 h-4 shrink-0" />
+            <span className="md:hidden">Audit ({queue.length})</span>
+            <span className="hidden md:inline">Audit Bukti ({queue.length})</span>
           </button>
         )}
 
@@ -137,38 +146,40 @@ export const AdminView: React.FC = () => {
           <>
             <button
               onClick={() => setAdminTab('catalog')}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 adminTab === 'catalog'
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
               }`}
             >
-              <Compass className="w-4 h-4" />
+              <Compass className="w-4 h-4 shrink-0" />
               <span>Katalog Aksi</span>
             </button>
 
             <button
               onClick={() => setAdminTab('learning')}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 adminTab === 'learning'
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
               }`}
             >
-              <BookOpen className="w-4 h-4" />
-              <span>Micro-Learning</span>
+              <BookOpen className="w-4 h-4 shrink-0" />
+              <span className="md:hidden">Learn</span>
+              <span className="hidden md:inline">Micro-Learning</span>
             </button>
 
             <button
               onClick={() => setAdminTab('cms')}
-              className={`px-3.5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 adminTab === 'cms'
                   ? 'bg-emerald-600 text-white shadow-xs'
                   : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
               }`}
             >
-              <Globe className="w-4 h-4" />
-              <span>CMS Buletin</span>
+              <Globe className="w-4 h-4 shrink-0" />
+              <span className="md:hidden">CMS</span>
+              <span className="hidden md:inline">CMS Buletin</span>
             </button>
           </>
         )}

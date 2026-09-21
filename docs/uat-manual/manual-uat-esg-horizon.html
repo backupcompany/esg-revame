@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Manual Book UAT — Siloam ESG Horizon</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #0f172a;
+      line-height: 1.45;
+      font-size: 11pt;
+    }
+    h1 { font-size: 20pt; color: #0f5238; margin: 0 0 6px; }
+    h2 { font-size: 14pt; color: #0f5238; border-bottom: 2px solid #0f5238; padding-bottom: 4px; margin-top: 22px; page-break-after: avoid; }
+    h3 { font-size: 12pt; color: #14532d; margin-top: 14px; page-break-after: avoid; }
+    .muted { color: #64748b; font-size: 10pt; }
+    .box {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .warn {
+      background: #fff7ed;
+      border: 1px solid #fdba74;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .bug {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 9.5pt;
+      white-space: pre-wrap;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10pt; }
+    th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #0f5238; color: #fff; }
+    tr:nth-child(even) td { background: #f8fafc; }
+    img.shot {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      object-position: top;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      margin: 8px 0 4px;
+      page-break-inside: avoid;
+    }
+    .caption { font-size: 9pt; color: #64748b; margin-bottom: 12px; }
+    ol.steps li { margin-bottom: 6px; }
+    .cover {
+      text-align: center;
+      padding: 40px 10px 20px;
+      page-break-after: always;
+    }
+    .cover .badge {
+      display: inline-block;
+      background: #0f5238;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 10pt;
+      letter-spacing: 0.04em;
+      margin-bottom: 16px;
+    }
+    .check { list-style: none; padding-left: 0; }
+    .check li::before { content: "☐ "; color: #0f5238; font-weight: bold; }
+    .check li { margin: 4px 0; }
+    .footer-note { font-size: 9pt; color: #64748b; margin-top: 24px; }
+    a { color: #0f5238; }
+  </style>
+</head>
+<body>
+
+<section class="cover">
+  <div class="badge">USER ACCEPTANCE TESTING (UAT)</div>
+  <h1>Manual Book Pengujian</h1>
+  <p style="font-size:14pt;margin:8px 0 4px"><strong>Siloam ESG Horizon</strong></p>
+  <p class="muted">Portal ESG Together — Undangan Mitra &amp; Operator Siloam</p>
+  <p style="margin-top:28px">URL pengujian:<br>
+    <strong><a href="https://esg-together.cgp-ai.com/">https://esg-together.cgp-ai.com/</a></strong>
+  </p>
+  <p class="muted" style="margin-top:24px">Versi: 16 September 2026<br>
+  Untuk: organisasi testing (non-teknis / awam)<br>
+  Laporan issue: chat ke PIC project (Vebri)</p>
+</section>
+
+<h2>1. Apa yang sedang diuji?</h2>
+<p><strong>Siloam ESG Horizon</strong> adalah portal undangan-only untuk mitra rantai pasok Siloam agar bisa:</p>
+<ul>
+  <li>Melihat berita &amp; konten publik ESG</li>
+  <li>Masuk ke <strong>Portal Mitra</strong> (asesmen, belajar, aksi ESG, dampak, kode etik)</li>
+  <li>Masuk ke <strong>Admin CMS</strong> (khusus operator Siloam) untuk review &amp; kelola konten</li>
+</ul>
+<div class="box">
+  <strong>Penting:</strong> ini bukan pendaftaran publik. Akun testing sudah disiapkan.
+  Jangan daftar email sembarangan — gunakan akun di tabel bawah.
+</div>
+
+<h2>2. Akun testing yang dipakai</h2>
+<p>Password bersama untuk semua akun UAT di bawah:</p>
+<div class="box"><strong>Password:</strong> <code>EsgUat-Nusa-2026x</code></div>
+<table>
+  <thead>
+    <tr>
+      <th>Peran</th>
+      <th>Email login</th>
+      <th>Yang harus terlihat</th>
+      <th>Fokus uji</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>PIC Vendor</strong><br><span class="muted">vendor_admin</span></td>
+      <td><code>pic.uat@esg-together.test</code></td>
+      <td>Portal Mitra Vendor (PT Nusantara Pro)</td>
+      <td>Alur mitra lengkap (utama untuk org testing)</td>
+    </tr>
+    <tr>
+      <td><strong>Staff Vendor</strong><br><span class="muted">vendor_member</span></td>
+      <td><code>staff.uat@esg-together.test</code></td>
+      <td>Portal Mitra (tanpa Admin CMS)</td>
+      <td>Baca &amp; ikut aksi / belajar</td>
+    </tr>
+    <tr>
+      <td><strong>Reviewer Siloam</strong><br><span class="muted">admin</span></td>
+      <td><code>admin.uat@esg-together.test</code></td>
+      <td>Menu operator (overview); CMS penuh hanya super</td>
+      <td>Review / overview</td>
+    </tr>
+    <tr>
+      <td><strong>Super Admin</strong><br><span class="muted">super_admin</span></td>
+      <td><code>super.uat@esg-together.test</code></td>
+      <td>Admin CMS penuh</td>
+      <td>CMS, roster, audit, katalog</td>
+    </tr>
+  </tbody>
+</table>
+<div class="warn">
+  <strong>Catatan:</strong> Login Google/Microsoft hanya untuk email yang sudah diundang VOB (produksi).
+  Untuk UAT org awam, <strong>pakai email + password</strong> di atas saja.
+</div>
+
+<h2>3. Cara masuk (semua peran)</h2>
+<ol class="steps">
+  <li>Buka <a href="https://esg-together.cgp-ai.com/">https://esg-together.cgp-ai.com/</a></li>
+  <li>Di pojok kanan atas, klik tombol <strong>Masuk</strong> (header publik hanya menampilkan Masuk sebelum login).</li>
+  <li>Isi Email + Password akun testing → klik <strong>Masuk dengan email</strong>.</li>
+  <li>Setelah berhasil, header berubah: muncul <strong>Akun</strong>, lalu tombol <strong>Portal Mitra Vendor</strong> (dan <strong>Admin CMS</strong> hanya untuk super admin).</li>
+  <li>Klik tombol portal sesuai peran Anda.</li>
+</ol>
+
+<img class="shot" src="assets/01-landing.png" alt="Landing publik" />
+<p class="caption">Gambar 1 — Halaman publik. Perhatikan hanya tombol <strong>Masuk</strong> (belum login).</p>
+
+<img class="shot" src="assets/02-login-modal.png" alt="Modal login" />
+<p class="caption">Gambar 2 — Form login email/password untuk akun UAT.</p>
+
+<h2>4. Skenario bisnis proses (checklist)</h2>
+
+<h3>A. Pengunjung publik (tanpa login)</h3>
+<ul class="check">
+  <li>Landing terbuka, carousel/hero bergerak atau bisa digeser</li>
+  <li>Menu: Inisiatif, Dampak, Galeri, Berita, Cerita Mitra, Edukasi, Berlangganan</li>
+  <li>Ganti bahasa ID ↔ EN</li>
+  <li>Ganti tema terang/gelap</li>
+  <li>Tombol Portal Mitra / Admin CMS <strong>tidak</strong> muncul sebelum login</li>
+</ul>
+
+<h3>B. PIC Vendor — <code>pic.uat@esg-together.test</code> (utama)</h3>
+<p>Setelah login → klik <strong>Portal Mitra Vendor</strong>. Uji menu satu per satu:</p>
+<table>
+  <thead><tr><th>Menu</th><th>Yang dilakukan</th><th>Hasil diharapkan</th></tr></thead>
+  <tbody>
+    <tr><td>Home</td><td>Lihat ringkasan dashboard</td><td>Data perusahaan / status tampil</td></tr>
+    <tr><td>Code of Conduct</td><td>Baca &amp; (jika diminta) tanda tangan</td><td>Konten CoC muncul; proses tanda tangan jelas</td></tr>
+    <tr><td>Assessment</td><td>Mulai / lihat hasil asesmen</td><td>Skor / maturity / rekomendasi tampil</td></tr>
+    <tr><td>Learn</td><td>Buka modul pembelajaran</td><td>Modul bisa dibuka; progress tersimpan</td></tr>
+    <tr><td>Actions</td><td>Browse katalog, commit aksi, unggah bukti jika ada</td><td>Tracker: Committed → Pending → Submitted → Verified</td></tr>
+    <tr><td>My Impact</td><td>Lihat dampak</td><td>Angka/impact tidak error</td></tr>
+    <tr><td>Profile</td><td>Cek profil &amp; vendor PT Nusantara Pro</td><td>Nama/email/vendor benar</td></tr>
+  </tbody>
+</table>
+
+<img class="shot" src="assets/04-actions-catalog.png" alt="Katalog aksi vendor" />
+<p class="caption">Gambar 3 — Portal Mitra → menu Actions / katalog aksi &amp; tracker komitmen.</p>
+
+<img class="shot" src="assets/03-portal-vendor.png" alt="Portal vendor" />
+<p class="caption">Gambar 4 — Contoh layar di dalam Portal Mitra (navigasi Home / Assessment / Learn / Actions / …).</p>
+
+<h3>C. Staff Vendor — <code>staff.uat@esg-together.test</code></h3>
+<ul class="check">
+  <li>Bisa masuk Portal Mitra</li>
+  <li><strong>Tidak</strong> melihat tombol Admin CMS</li>
+  <li>Bisa buka Learn / Actions (sesuai hak member)</li>
+</ul>
+
+<h3>D. Reviewer — <code>admin.uat@esg-together.test</code></h3>
+<ul class="check">
+  <li>Login berhasil</li>
+  <li>Bisa melihat area operator / overview (sesuai hak admin)</li>
+  <li>Catat: beberapa menu CMS penuh mungkin hanya untuk Super Admin</li>
+</ul>
+
+<h3>E. Super Admin — <code>super.uat@esg-together.test</code></h3>
+<ul class="check">
+  <li>Setelah login muncul tombol <strong>Admin CMS</strong></li>
+  <li>Masuk Admin CMS → cek tab: Corporate Grid, Excel Upload, Audit Bukti, Katalog Aksi, Micro-Learning, CMS Buletin</li>
+  <li>Buka CMS Buletin: hero / artikel / galeri bisa dilihat</li>
+</ul>
+
+<img class="shot" src="assets/05-admin-cms.png" alt="Admin / portal setelah login" />
+<p class="caption">Gambar 5 — Contoh layar setelah login operator/mitra (navigasi internal). Super Admin harus melihat pintu masuk Admin CMS di header publik setelah login.</p>
+
+<h2>5. Cara melaporkan issue ke chat (WAJIB ikuti format)</h2>
+<p>Kirim ke PIC (Vebri) via chat. Satu bug = satu pesan (atau satu balasan beruntun). Isi minimal:</p>
+<div class="bug">Judul: [singkat, 1 baris]
+
+Akun: email yang dipakai (contoh pic.uat@esg-together.test)
+Peran: PIC Vendor / Staff / Admin / Super Admin
+Browser: Chrome / Safari / Edge + HP atau Laptop
+Halaman: URL atau nama menu (contoh Portal Mitra → Actions)
+Langkah:
+1. ...
+2. ...
+3. ...
+
+Diharapkan: ...
+Yang terjadi: ...
+Screenshot: (wajib tempel foto layar)
+Waktu: tanggal &amp; jam kira-kira
+</div>
+
+<div class="box">
+  <strong>Contoh bagus:</strong><br>
+  Judul: Tombol “Commit Action” tidak bereaksi<br>
+  Akun: pic.uat@esg-together.test (PIC)<br>
+  Browser: Chrome laptop<br>
+  Halaman: Portal Mitra → Actions<br>
+  Langkah: buka Actions → pilih aksi LED → klik Commit<br>
+  Diharapkan: aksi masuk tracker “Total Committed”<br>
+  Yang terjadi: tombol tidak berubah, angka tetap 0<br>
+  + screenshot
+</div>
+
+<div class="warn">
+  <strong>Jangan:</strong> hanya tulis “error” / “gak bisa” tanpa langkah &amp; screenshot.
+  <strong>Juga jangan:</strong> share password di grup besar; pakai chat privat ke PIC.
+</div>
+
+<h2>6. Definisi “lulus” singkat</h2>
+<ul>
+  <li>Publik: landing &amp; navigasi OK, Masuk muncul</li>
+  <li>PIC: login → Portal Mitra → 7 menu terbuka tanpa error merah</li>
+  <li>Staff: login → Portal Mitra; tanpa Admin CMS</li>
+  <li>Super: login → Admin CMS terbuka</li>
+  <li>Issue yang ditemukan dilaporkan dengan format di atas</li>
+</ul>
+
+<p class="footer-note">
+  Dokumen ini untuk UAT internal. URL: https://esg-together.cgp-ai.com/ — Siloam ESG Horizon / ESG Together.<br>
+  Akun &amp; password hanya untuk lingkungan testing undangan.
+</p>
+
+</body>
+</html>

@@ -49,7 +49,9 @@ import {
   ThumbsUp,
   Eye,
   Layers,
-  Hospital
+  Hospital,
+  Menu,
+  X
 } from 'lucide-react';
 
 interface NewsletterLandingViewProps {
@@ -90,10 +92,21 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
   const [subscriberName, setSubscriberName] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isSubmittingSubscribe, setIsSubmittingSubscribe] = useState(false);
+  // ponytail: mobile drawer only; desktop header unchanged. Split nav component if portal also needs this.
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMobileMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [mobileMenuOpen]);
 
   const loadData = async () => {
     const [slides, gals, arts, gds, spots, mets] = await Promise.all([
@@ -169,8 +182,8 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200 selection:bg-emerald-200 selection:text-emerald-900">
       {/* Editorial Newsletter Masthead */}
       <header className="border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 sticky top-0 z-40 backdrop-blur-md">
-        {/* Top Notice Bar */}
-        <div className="bg-[#0f5238] text-emerald-100 px-4 py-1.5 text-xs text-center font-medium flex items-center justify-center gap-2">
+        {/* Top Notice Bar — desktop only (Maxwell mobile = clean header) */}
+        <div className="hidden md:flex bg-[#0f5238] text-emerald-100 px-4 py-1.5 text-xs text-center font-medium items-center justify-center gap-2">
           <Sparkles className="w-3.5 h-3.5 text-emerald-300 animate-pulse" />
           <span>
             <strong>Siloam ESG Horizon:</strong>{' '}
@@ -181,12 +194,12 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
         </div>
 
         {/* Main Navbar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#0f5238] to-emerald-600 flex items-center justify-center text-white shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 shrink-0 rounded-xl bg-gradient-to-tr from-[#0f5238] to-emerald-600 flex items-center justify-center text-white shadow-md">
               <Leaf className="w-6 h-6 fill-current" />
             </div>
-            <div className="text-left">
+            <div className="text-left min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-slate-50">
                   Siloam ESG Horizon
@@ -195,7 +208,7 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
                   {isId ? 'Portal Publik' : 'Public Portal'}
                 </span>
               </div>
-              <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+              <p className="hidden md:block text-[11px] font-semibold text-slate-500 dark:text-slate-400">
                 {metrics
                   ? (isId
                     ? `Aksi Nyata ${metrics.totalVendors} Mitra Rantai Pasok Menuju Net-Zero Healthcare`
@@ -207,8 +220,8 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
             </div>
           </div>
 
-          {/* Action Navigation */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Desktop actions — unchanged layout */}
+          <div className="hidden md:flex items-center gap-2 sm:gap-3">
             <LanguageToggle />
             {onToggleTheme && (
               <button
@@ -228,8 +241,7 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
                 className="px-3 sm:px-4 py-2 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <Building2 className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="hidden sm:inline">Portal Mitra Vendor</span>
-                <span className="sm:hidden">Vendor</span>
+                <span>Portal Mitra Vendor</span>
               </button>
             )}
 
@@ -239,15 +251,25 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
                 className="px-3 sm:px-4 py-2 rounded-lg text-xs font-bold bg-[#0f5238] hover:bg-[#0f5238]/90 text-white transition-colors flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Admin CMS</span>
-                <span className="sm:hidden">CMS</span>
+                <span>Admin CMS</span>
               </button>
             )}
           </div>
+
+          {/* Mobile: Maxwell-style hamburger only */}
+          <button
+            type="button"
+            className="md:hidden p-2.5 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+            aria-label={mobileMenuOpen ? (isId ? 'Tutup menu' : 'Close menu') : (isId ? 'Buka menu' : 'Open menu')}
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen(o => !o)}
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
 
-        {/* Section Navigation Links */}
-        <div className="border-t border-slate-100 dark:border-slate-800/80 px-4 sm:px-6 max-w-7xl mx-auto flex items-center justify-between overflow-x-auto py-2 text-xs font-semibold text-slate-600 dark:text-slate-400">
+        {/* Section Navigation Links — desktop strip */}
+        <div className="hidden md:flex border-t border-slate-100 dark:border-slate-800/80 px-4 sm:px-6 max-w-7xl mx-auto items-center justify-between overflow-x-auto py-2 text-xs font-semibold text-slate-600 dark:text-slate-400">
           <div className="flex items-center space-x-6 shrink-0">
             <a href="#hero" className="hover:text-[#0f5238] dark:hover:text-emerald-400 transition-colors">
               ⭐ Inisiatif Utama
@@ -272,11 +294,85 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
             </a>
           </div>
 
-          <div className="hidden md:flex items-center gap-2 text-[11px] text-slate-500">
+          <div className="flex items-center gap-2 text-[11px] text-slate-500">
             <Sparkles className="w-3 h-3 text-emerald-600" />
             <span>Jaringan RS Siloam Terhubung</span>
           </div>
         </div>
+
+        {/* Mobile drawer */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-4 space-y-4 shadow-lg">
+            <nav className="flex flex-col gap-1 text-sm font-semibold text-slate-700 dark:text-slate-200">
+              {[
+                { href: '#hero', label: isId ? '⭐ Inisiatif Utama' : '⭐ Featured' },
+                { href: '#dampak', label: isId ? '📊 Dampak Ekosistem' : '📊 Ecosystem Impact' },
+                { href: '#galeri', label: isId ? '📸 Galeri Fasilitas' : '📸 Gallery' },
+                { href: '#berita', label: isId ? '📰 Berita & Artikel' : '📰 News' },
+                { href: '#spotlight', label: isId ? '🌟 Cerita Mitra' : '🌟 Partner Stories' },
+                { href: '#edukasi', label: isId ? '🎓 Edukasi Terbuka' : '🎓 Education' },
+                { href: '#langganan', label: isId ? '✉️ Berlangganan' : '✉️ Subscribe' },
+              ].map(item => (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+
+            <div className="border-t border-slate-100 dark:border-slate-800 pt-3 flex flex-wrap items-center gap-2">
+              <LanguageToggle />
+              {onToggleTheme && (
+                <button
+                  onClick={onToggleTheme}
+                  className="p-2 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  title={isId ? 'Ganti tema' : 'Toggle theme'}
+                >
+                  {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+                </button>
+              )}
+              {onOpenAuth && (
+                <AccountButton
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onOpenAuth();
+                  }}
+                />
+              )}
+            </div>
+
+            {signedIn && (
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    onNavigateToVendor('home');
+                  }}
+                  className="w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Building2 className="w-4 h-4 text-emerald-600" />
+                  {isId ? 'Portal Mitra Vendor' : 'Vendor Portal'}
+                </button>
+                {canAccessAdmin && (
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      onNavigateToAdmin();
+                    }}
+                    className="w-full px-4 py-2.5 rounded-xl text-sm font-bold bg-[#0f5238] hover:bg-[#0f5238]/90 text-white transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    Admin CMS
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Main Content Area */}

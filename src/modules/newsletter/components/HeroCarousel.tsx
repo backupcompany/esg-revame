@@ -99,8 +99,8 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Background Image Carousel with Fade Transitions */}
-      <div className="relative h-[500px] sm:h-[540px] md:h-[580px] lg:h-[620px] w-full overflow-hidden">
+      {/* Mobile: height follows content (fixed h clips impact badge). Desktop heights unchanged. */}
+      <div className="relative w-full min-h-0 h-auto overflow-visible md:h-[580px] md:overflow-hidden lg:h-[620px]">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide.id}
@@ -108,7 +108,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 w-full h-full min-h-full"
           >
             <img
               src={currentSlide.imageUrl}
@@ -132,14 +132,14 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
         <div className="absolute top-10 right-10 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-10 left-10 w-80 h-80 bg-teal-400/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Content Container */}
-        <div className="relative z-10 h-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-10 sm:py-14 flex flex-col justify-between text-left">
+        {/* Content Container — md+: fill fixed height; mobile: stack & grow */}
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-10 lg:px-12 py-8 sm:py-14 flex flex-col gap-5 sm:gap-6 md:gap-0 md:h-full md:justify-between text-left">
           {/* Top Bar inside Carousel */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <span className="px-3 py-1 bg-white/15 backdrop-blur-md border border-white/25 rounded-md text-xs font-black uppercase tracking-wider text-emerald-200 shadow-sm flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-emerald-300 animate-pulse" />
-                <span>{currentSlide.badgeText}</span>
+          <div className="flex items-center justify-between gap-2 shrink-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="px-2.5 sm:px-3 py-1 bg-white/15 backdrop-blur-md border border-white/25 rounded-md text-[10px] sm:text-xs font-black uppercase tracking-wider text-emerald-200 shadow-sm flex items-center gap-1.5 min-w-0">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-300 animate-pulse shrink-0" />
+                <span className="leading-snug">{currentSlide.badgeText}</span>
               </span>
               <span className="hidden sm:inline-block px-2.5 py-1 bg-black/40 backdrop-blur-md rounded-md text-[11px] font-semibold text-slate-300 border border-white/10">
                 {currentSlide.category}
@@ -147,7 +147,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
             </div>
 
             {/* Slide Counter & Autoplay Toggle */}
-            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/15 rounded-md px-3 py-1 text-xs font-semibold text-slate-200">
+            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md border border-white/15 rounded-md px-3 py-1 text-xs font-semibold text-slate-200 shrink-0">
               <span>
                 {currentIndex + 1} / {activeSlides.length}
               </span>
@@ -162,8 +162,8 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
           </div>
 
           {/* Main Slide Content Animation */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end my-auto">
-            <div className="lg:col-span-8 space-y-4 sm:space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-8 items-end md:my-auto">
+            <div className="lg:col-span-8 space-y-3 sm:space-y-5">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentSlide.id + '_content'}
@@ -171,7 +171,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.5, ease: 'easeOut' }}
-                  className="space-y-4"
+                  className="space-y-3 sm:space-y-4"
                 >
                   <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.15] max-w-3xl drop-shadow-md">
                     {currentSlide.title}
@@ -184,12 +184,12 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
               </AnimatePresence>
 
               {/* Action Buttons */}
-              <div className="pt-3 flex flex-wrap items-center gap-3.5">
+              <div className="pt-1 sm:pt-3 flex flex-wrap items-center gap-2.5 sm:gap-3.5">
                 <button
                   onClick={() =>
                     handleCtaAction(currentSlide.ctaPrimaryAction, currentSlide.targetArticleId)
                   }
-                  className="px-6 sm:px-7 py-3 rounded-lg bg-white hover:bg-emerald-50 text-[#0f5238] font-bold text-xs sm:text-sm shadow-xl active:scale-95 transition-all flex items-center gap-2 cursor-pointer group/btn"
+                  className="px-5 sm:px-7 py-2.5 sm:py-3 rounded-lg bg-white hover:bg-emerald-50 text-[#0f5238] font-bold text-xs sm:text-sm shadow-xl active:scale-95 transition-all flex items-center gap-2 cursor-pointer group/btn"
                 >
                   <span>{currentSlide.ctaPrimaryText}</span>
                   <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -200,7 +200,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     onClick={() =>
                       handleCtaAction(currentSlide.ctaSecondaryAction || 'onboarding')
                     }
-                    className="px-5 sm:px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm border border-white/25 backdrop-blur-md transition-all flex items-center gap-2 cursor-pointer"
+                    className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm border border-white/25 backdrop-blur-md transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <span>{currentSlide.ctaSecondaryText}</span>
                     <ArrowUpRight className="w-4 h-4" />
@@ -211,32 +211,32 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
 
             {/* Hero Frosted Impact Badge (World-Class Metric Card) */}
             {currentSlide.impactBadge && (
-              <div className="lg:col-span-4 bg-slate-900/60 backdrop-blur-xl border border-white/20 rounded-xl p-6 sm:p-7 text-left space-y-3 shadow-2xl relative overflow-hidden group/metric">
+              <div className="lg:col-span-4 bg-slate-900/60 backdrop-blur-xl border border-white/20 rounded-xl p-4 sm:p-7 text-left space-y-2 sm:space-y-3 shadow-2xl relative overflow-hidden group/metric">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
                 <div className="flex items-center justify-between text-xs font-bold text-emerald-300 uppercase tracking-wider">
                   <span>Capaian Terverifikasi</span>
                   <Award className="w-4 h-4 text-amber-400" />
                 </div>
-                <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+                <div className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
                   {currentSlide.impactBadge.value}
                 </div>
                 <p className="text-xs sm:text-sm text-slate-300 font-medium leading-snug">
                   {currentSlide.impactBadge.label}
                 </p>
-                <div className="pt-3 border-t border-white/15 flex items-center justify-between text-[11px] text-slate-400">
+                <div className="pt-2 sm:pt-3 border-t border-white/15 flex items-center justify-between gap-2 text-[11px] text-slate-400">
                   <span>
                     {partnerCount != null
                       ? `Gerakan ${partnerCount} Vendor RS Siloam`
                       : 'Gerakan Vendor RS Siloam'}
                   </span>
-                  <span className="text-emerald-300 font-bold">100% Real Impact</span>
+                  <span className="text-emerald-300 font-bold shrink-0">100% Real Impact</span>
                 </div>
               </div>
             )}
           </div>
 
           {/* Bottom Bar: Thumbnail Indicators & Slide Nav */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-white/10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-white/10 shrink-0">
             {/* Thumbnail Pills */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
               {activeSlides.map((slide, idx) => {

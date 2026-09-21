@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3000",
-    "dev:api": "go run -C backend ./cmd/api",
+    "dev": "ESG_API_PROXY=http://127.0.0.1:8081 vite --port 3000",
+    "dev:api": "API_PORT=8081 go run -C backend ./cmd/api",
     "db:migrate": "bash scripts/migrate.sh",
     "govuln": "go -C backend run golang.org/x/vuln/cmd/govulncheck@latest ./...",
     "vet:api": "go -C backend vet ./...",
