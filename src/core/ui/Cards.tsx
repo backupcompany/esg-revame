@@ -22,14 +22,10 @@ export const BaseCard: React.FC<CardProps> = ({
     lg: 'p-6 sm:p-8',
   };
 
-  const interactiveStyles = onClick || hoverEffect
-    ? 'hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-900/60 transition-all duration-200 cursor-pointer'
-    : '';
-
   return (
     <div
       onClick={onClick}
-      className={`bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-xl shadow-xs ${paddingStyles[padding]} ${interactiveStyles} ${className}`}
+      className={`${paddingStyles[padding]} ${onClick ? 'cursor-pointer' : ''} ${className} !bg-transparent !border-0 !shadow-none`}
     >
       {children}
     </div>
@@ -57,20 +53,8 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   colorTheme = 'emerald',
   description,
 }) => {
-  const themeStyles = {
-    emerald: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400',
-    amber: 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400',
-    indigo: 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400',
-    blue: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400',
-    slate: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400',
-  };
-
-  const badgeStyles = {
-    success: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
-    warning: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
-    info: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
-  };
-
+  void badgeType;
+  void colorTheme;
   return (
     <BaseCard padding="md" className="flex flex-col justify-between">
       <div>
@@ -79,7 +63,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             {title}
           </span>
           {icon && (
-            <div className={`p-2 rounded-lg ${themeStyles[colorTheme]}`}>
+            <div className="text-slate-400">
               {icon}
             </div>
           )}
@@ -101,7 +85,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
             <span className="text-slate-500 dark:text-slate-400 truncate">{description}</span>
           )}
           {badgeText && (
-            <span className={`px-2 py-0.5 rounded-md font-semibold text-[11px] ${badgeStyles[badgeType]}`}>
+            <span className="text-[11px] font-medium text-slate-500">
               {badgeText}
             </span>
           )}

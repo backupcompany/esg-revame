@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -174,9 +175,77 @@ func (s *Server) loadScoreQuestions(c *gin.Context) ([]scoreQ, bool) {
 	return qs, true
 }
 
+func (s *Server) assessmentDone(ctx context.Context, vendorID int) bool {
+	var n int
+	_ = s.db.QueryRow(ctx, `SELECT COUNT(*) FROM assessment_results WHERE vendor_id = $1`, vendorID).Scan(&n)
+	return n > 0
+}
+
+func (s *Server) getAssessmentDraft(c *gin.Context) {
+	user, ok := s.requireVendorWrite(c)
+	if !ok {
+		return
+	}
+	var raw []byte
+	err := s.db.QueryRow(c.Request.Context(), `SELECT COALESCE(assessment_answers, '{}'::jsonb) FROM vendors WHERE id = $1`, *user.VendorID).Scan(&raw)
+	if err != nil {
+		httpx.JSON(c.Writer, http.StatusOK, gin.H{"answers": map[string]string{}})
+		return
+	}
+	httpx.JSON(c.Writer, http.StatusOK, gin.H{"answers": json.RawMessage(raw)})
+}
+
+func (s *Server) saveAssessmentDraft(c *gin.Context) {
+	user, ok := s.requireVendorWrite(c)
+	if !ok {
+		return
+	}
+	if s.assessmentDone(c.Request.Context(), *user.VendorID) {
+		httpx.Error(c.Writer, http.StatusConflict, "already_scored")
+		return
+	}
+	var body struct {
+		Answers map[string]string `json:"answers"`
+	}
+	if err := c.ShouldBindJSON(&body); err != nil || body.Answers == nil {
+		httpx.Error(c.Writer, http.StatusBadRequest, "invalid json")
+		return
+	}
+	if len(body.Answers) > 40 {
+		httpx.Error(c.Writer, http.StatusBadRequest, "too many answers")
+		return
+	}
+	allowedAns := map[string]struct{}{"yes": {}, "partially": {}, "not_yet": {}, "na": {}}
+	for k, v := range body.Answers {
+		if k == "" || len(k) > 40 {
+			httpx.Error(c.Writer, http.StatusBadRequest, "invalid answer key")
+			return
+		}
+		if _, ok := allowedAns[v]; !ok {
+			httpx.Error(c.Writer, http.StatusBadRequest, "invalid answer")
+			return
+		}
+	}
+	b, err := json.Marshal(body.Answers)
+	if err != nil {
+		httpx.Error(c.Writer, http.StatusBadRequest, "invalid answers")
+		return
+	}
+	_, err = s.db.Exec(c.Request.Context(), `UPDATE vendors SET assessment_answers = $2::jsonb, updated_at = now() WHERE id = $1`, *user.VendorID, b)
+	if err != nil {
+		httpx.Error(c.Writer, http.StatusInternalServerError, "save failed")
+		return
+	}
+	httpx.JSON(c.Writer, http.StatusOK, gin.H{"ok": true})
+}
+
 func (s *Server) createAssessment(c *gin.Context) {
 	user, ok := s.requireVendorWrite(c)
 	if !ok {
+		return
+	}
+	if s.assessmentDone(c.Request.Context(), *user.VendorID) {
+		httpx.Error(c.Writer, http.StatusConflict, "already_scored")
 		return
 	}
 	var body struct {

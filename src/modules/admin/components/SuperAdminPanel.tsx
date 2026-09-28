@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../core/context/AuthContext';
+import { useLanguage } from '../../../core/context/LanguageContext';
 import { BaseCard } from '../../../core/ui/Cards';
 import { Button } from '../../../core/ui/Button';
-import { Upload, FileSpreadsheet, Users, Building2, ShieldCheck, CheckCircle2, AlertCircle, Download } from 'lucide-react';
+import { Upload, CheckCircle2, AlertCircle, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { apiDownload, apiFetch } from '../../../core/services/api';
 
 export const SuperAdminPanel: React.FC = () => {
   const { vendorsList, allUsersList, updateUserRole, refreshAuth } = useAuth();
+  const { isId } = useLanguage();
   const [uploading, setUploading] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<{ text: string; success: boolean } | null>(null);
 
@@ -67,14 +69,11 @@ export const SuperAdminPanel: React.FC = () => {
     <div className="space-y-8 text-left">
       {/* Excel Upload Section */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-        <div className="flex items-center space-x-3">
-          <div className="p-3 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-xl">
-            <FileSpreadsheet className="w-6 h-6" />
-          </div>
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">Excel Bulk Upload for Vendor Companies</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Upload an Excel (.xlsx or .csv) containing columns: <code className="text-emerald-600 font-mono">companyName</code>, <code className="text-emerald-600 font-mono">industry</code>, <code className="text-emerald-600 font-mono">employeeCount</code>, <code className="text-emerald-600 font-mono">contactPerson</code>, <code className="text-emerald-600 font-mono">phone</code>, <code className="text-emerald-600 font-mono">address</code>, <code className="text-emerald-600 font-mono">allowedEmails</code> (comma-separated).
+            <h3 className="text-lg font-semibold">{isId ? 'Daftar' : 'Roster'}</h3>
+            <p className="mt-1 text-sm italic text-slate-600 dark:text-slate-300">
+              {isId ? 'Satu baris satu perusahaan. Email undangan di kolom allowedEmails, dipisah koma.' : 'One row per company. Put the invited emails in allowedEmails, separated by commas.'}
             </p>
           </div>
           <Button
@@ -117,74 +116,44 @@ export const SuperAdminPanel: React.FC = () => {
       </div>
 
       {/* User Management & Role Assignment */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-        <div className="flex items-center space-x-3">
-          <div className="p-3 bg-teal-100 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 rounded-xl">
-            <Users className="w-6 h-6" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">User Role Management & Permissions</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Assign roles (<code className="font-bold">super_admin</code>, <code className="font-bold">admin</code>, <code className="font-bold">vendor_admin</code>, <code className="font-bold">vendor_member</code>) and associate users to vendor companies.
-            </p>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 uppercase">
-                <th className="py-3 px-4">User Email</th>
-                <th className="py-3 px-4">Name</th>
-                <th className="py-3 px-4">Role</th>
-                <th className="py-3 px-4">Assigned Vendor Company</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-              {allUsersList.map(u => (
-                <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                  <td className="py-3 px-4 font-medium text-slate-900 dark:text-slate-100">{u.email}</td>
-                  <td className="py-3 px-4 text-slate-600 dark:text-slate-400">{u.name || '-'}</td>
-                  <td className="py-3 px-4">
-                    <select
-                      value={u.role}
-                      onChange={async (e) => {
-                        await updateUserRole(u.id, e.target.value, u.vendorId);
-                      }}
-                      className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-bold text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="super_admin">Superadmin</option>
-                      <option value="admin">Admin (Corporate Reviewer)</option>
-                      <option value="vendor_admin">Vendor Admin</option>
-                      <option value="vendor_member">Vendor Member</option>
-                    </select>
-                  </td>
-                  <td className="py-3 px-4">
-                    <select
-                      value={u.vendorId || ''}
-                      onChange={async (e) => {
-                        const vId = e.target.value ? parseInt(e.target.value) : undefined;
-                        await updateUserRole(u.id, u.role, vId);
-                      }}
-                      className="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="">-- No Vendor Assigned --</option>
-                      {vendorsList.map(v => (
-                        <option key={v.id} value={v.id}>{v.companyName}</option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <span className="px-2 py-1 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 rounded-md text-[10px] font-bold">
-                      Active
-                    </span>
-                  </td>
-                </tr>
+      <div className="space-y-1">
+        <h3 className="text-lg font-semibold">{isId ? 'Orang' : 'People'}</h3>
+        <p className="text-sm italic text-slate-600 dark:text-slate-300">{isId ? 'Peran dan perusahaan ada di baris. Ubah hanya kalau undangannya salah.' : 'Role and company are on the row. Change them only if the invite is wrong.'}</p>
+        {allUsersList.map(u => (
+          <div key={u.id} className="grid gap-2 border-b border-slate-300 py-4 dark:border-slate-800 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+            <div>
+              <p className="text-lg font-semibold">{u.name || u.email}</p>
+              <p className="text-sm italic text-slate-600 dark:text-slate-300">
+                {u.email} · <span className="font-semibold text-emerald-500">{u.role || 'no role'}</span>
+                {' · '}
+                {vendorsList.find(v => String(v.id) === String(u.vendorId))?.companyName || (isId ? 'Tanpa perusahaan' : 'No company')}
+              </p>
+            </div>
+            <select
+              value={u.role}
+              onChange={async (e) => { await updateUserRole(u.id, e.target.value, u.vendorId); }}
+              className="bg-transparent text-sm text-slate-900 dark:text-white"
+            >
+              <option value="super_admin">super_admin</option>
+              <option value="admin">admin</option>
+              <option value="vendor_admin">vendor_admin</option>
+              <option value="vendor_member">vendor_member</option>
+            </select>
+            <select
+              value={u.vendorId || ''}
+              onChange={async (e) => {
+                const vId = e.target.value ? parseInt(e.target.value) : undefined;
+                await updateUserRole(u.id, u.role, vId);
+              }}
+              className="bg-transparent text-sm text-slate-900 dark:text-white"
+            >
+              <option value="">{isId ? 'Tanpa perusahaan' : 'No company'}</option>
+              {vendorsList.map(v => (
+                <option key={v.id} value={v.id}>{v.companyName}</option>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </select>
+          </div>
+        ))}
       </div>
     </div>
   );

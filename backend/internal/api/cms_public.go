@@ -275,7 +275,7 @@ func (s *Server) publicMetrics(c *gin.Context) {
 	ctx := c.Request.Context()
 	var vendors, verifiedVendors, verifiedActions int
 	_ = s.db.QueryRow(ctx, `SELECT COUNT(*) FROM vendors`).Scan(&vendors)
-	_ = s.db.QueryRow(ctx, `SELECT COUNT(*) FROM vendors WHERE verification_status = 'Verified'`).Scan(&verifiedVendors)
+	_ = s.db.QueryRow(ctx, `SELECT COUNT(DISTINCT vendor_id) FROM vendor_actions WHERE status = 'Verified'`).Scan(&verifiedVendors)
 	_ = s.db.QueryRow(ctx, `SELECT COUNT(*) FROM vendor_actions WHERE status = 'Verified'`).Scan(&verifiedActions)
 	totals := emptyImpact()
 	rows, err := s.db.Query(ctx, `

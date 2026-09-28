@@ -1,8 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FirebaseError } from 'firebase/app';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { apiFetch } from '../services/api';
 import { ShieldCheck, Building2, LogOut } from 'lucide-react';
+
+type Actor = { email: string; name: string; role: string; company: string };
+
+const roleLabel: Record<string, string> = {
+  super_admin: 'Super admin',
+  admin: 'Admin',
+  vendor_admin: 'PIC vendor',
+  vendor_member: 'Staf vendor',
+  vendor: 'Vendor',
+};
 
 function ssoErrorMessage(err: unknown): string {
   const code = err instanceof FirebaseError ? err.code : '';
@@ -21,11 +32,21 @@ function ssoErrorMessage(err: unknown): string {
 
 export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const { isId } = useLanguage();
-  const { dbUser, vendor, signInWithGoogle, signInWithMicrosoft, signInWithPassword, signInAsDemoSuperAdmin, signOut, authError } = useAuth();
+  const { dbUser, vendor, signInWithGoogle, signInWithMicrosoft, signInWithPassword, signInAsDemoSuperAdmin, signInAsActor, signOut, authError } = useAuth();
   const [ssoError, setSsoError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [actors, setActors] = useState<Actor[]>([]);
+  const [actor, setActor] = useState('');
   const signedIn = Boolean(dbUser);
+
+  useEffect(() => {
+    if (!isOpen || signedIn) return;
+    void apiFetch('/api/public/auth/actors')
+      .then(async (res) => (res.ok ? res.json() : { actors: [] }))
+      .then((data) => setActors(Array.isArray(data.actors) ? data.actors : []))
+      .catch(() => setActors([]));
+  }, [isOpen, signedIn]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -56,12 +77,12 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
               <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 {signedIn
                   ? (isId ? 'Sesi akun' : 'Account session')
-                  : (isId ? 'Masuk dengan SSO' : 'Sign in with SSO')}
+                  : (isId ? 'Masuk ke Portal Mitra' : 'Sign in to Partner Portal')}
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 {signedIn
                   ? (isId ? 'Anda sudah masuk. Keluar akan mengakhiri sesi ini.' : 'You are signed in. Sign out ends this session.')
-                  : (isId ? 'Google atau Microsoft · email harus ada di VOB' : 'Google or Microsoft · email must be on the VOB roster')}
+                  : (isId ? 'Pakai email undangan VOB · Google / Microsoft / password UAT' : 'Use your VOB invite email · Google / Microsoft / UAT password')}
               </p>
             </div>
           </div>
@@ -129,6 +150,35 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 {ssoError || 'Email ini tidak ada di undangan VOB. Hubungi tim ESG Siloam.'}
               </p>
             )}
+            {actors.length > 0 && (
+              <form
+                className="space-y-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (actor) void runAuth(() => signInAsActor(actor));
+                }}
+              >
+                <label className="block text-xs font-semibold text-slate-500">
+                  {isId ? 'Masuk sebagai (uji, tanpa password)' : 'Sign in as (test, no password)'}
+                </label>
+                <select
+                  value={actor}
+                  onChange={(e) => setActor(e.target.value)}
+                  className="w-full min-h-12 px-3 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
+                  required
+                >
+                  <option value="">{isId ? 'Pilih akun di database' : 'Pick a database account'}</option>
+                  {actors.map((a) => (
+                    <option key={a.email} value={a.email}>
+                      {(roleLabel[a.role] || a.role)} · {a.name || a.email}{a.company ? ` · ${a.company}` : ''}
+                    </option>
+                  ))}
+                </select>
+                <button type="submit" className="w-full min-h-12 py-3 px-4 bg-slate-900 text-white font-semibold rounded-xl text-sm">
+                  {isId ? 'Masuk' : 'Sign in'}
+                </button>
+              </form>
+            )}
             <form
               className="space-y-2"
               onSubmit={(e) => {
@@ -142,7 +192,7 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
+                className="w-full min-h-12 px-3 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-base"
                 required
               />
               <input
@@ -151,12 +201,12 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
+                className="w-full min-h-12 px-3 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-base"
                 required
               />
               <button
                 type="submit"
-                className="w-full py-3 px-4 bg-[#0f5238] hover:bg-emerald-900 text-white font-semibold rounded-xl"
+                className="w-full min-h-12 py-3 px-4 bg-[#0f5238] hover:bg-emerald-900 text-white font-semibold rounded-xl text-base"
               >
                 Masuk dengan email
               </button>
@@ -170,14 +220,14 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
               <button
                 type="button"
                 onClick={() => void runAuth(signInWithGoogle)}
-                className="py-2.5 px-3 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-xl"
+                className="min-h-12 py-3 px-3 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-xl"
               >
                 Google
               </button>
               <button
                 type="button"
                 onClick={() => void runAuth(signInWithMicrosoft)}
-                className="py-2.5 px-3 bg-white hover:bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-700"
+                className="min-h-12 py-3 px-3 bg-white hover:bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm font-semibold rounded-xl border border-slate-200 dark:border-slate-700"
               >
                 Microsoft
               </button>

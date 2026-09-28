@@ -3,7 +3,7 @@ import { Modal } from '../../../core/ui/FeedbackStates';
 import { Button } from '../../../core/ui/Button';
 import { Input, TextArea, FileUpload } from '../../../core/ui/Form';
 import { ESGCommitment, ESGAction, EvidenceFile } from '../../../core/types';
-import { Camera, FileText, CheckCircle2, Sparkles, AlertCircle } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 
 interface EvidenceReportModalProps {
   commitment: ESGCommitment | null;
@@ -29,7 +29,7 @@ export const EvidenceReportModal: React.FC<EvidenceReportModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const displayTitle = isId ? (action.titleId || action.title) : action.title;
-  const displayMetric = isId ? (action.impactMetricUnitId || action.impactMetricUnit) : action.impactMetricUnit;
+  const displayDescription = isId ? (action.descriptionId || action.description) : action.description;
   const displayMetricLabel = isId ? (action.impactMetricLabelId || action.impactMetricLabel) : action.impactMetricLabel;
 
   const handleFileAdd = (f: EvidenceFile) => {
@@ -51,77 +51,52 @@ export const EvidenceReportModal: React.FC<EvidenceReportModalProps> = ({
   };
 
   return (
-    <Modal
-      isOpen={!!commitment}
-      onClose={onClose}
-      maxWidth="lg"
-      title={isId ? `Laporkan Bukti: ${displayTitle}` : `Report Evidence: ${displayTitle}`}
-    >
-      <form onSubmit={handleSubmit} className="space-y-4 text-left">
-        {/* Metric Quantity Input */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <Modal isOpen={!!commitment} onClose={onClose} maxWidth="4xl" title={isId ? 'Unggah bukti' : 'Upload proof'}>
+      <form onSubmit={handleSubmit} className="text-left lg:grid lg:grid-cols-2 lg:gap-10">
+        <div className="space-y-4">
+          <p className="text-lg font-semibold text-slate-900 dark:text-white">{displayTitle}</p>
+          {displayDescription && (
+            <p className="text-sm italic text-slate-600 dark:text-slate-300">{displayDescription}</p>
+          )}
           <Input
-            label={isId ? `Jumlah/Volume Tercapai (${displayMetricLabel})` : `Reported Quantity (${displayMetricLabel})`}
+            label={displayMetricLabel}
             type="number"
             min={1}
             value={quantity}
             onChange={e => setQuantity(Number(e.target.value))}
             required
           />
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200/80 dark:border-emerald-800 text-xs text-slate-700 dark:text-slate-300 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-emerald-600 shrink-0" />
-            <div>
-              <strong className="block text-emerald-900 dark:text-emerald-300">
-                {isId ? 'Estimasi Total Dampak' : 'Estimated Total Impact'}
-              </strong>
-              <span>{(action.impactMultiplier * quantity).toLocaleString()} {displayMetric}</span>
-            </div>
+          <TextArea
+            label={isId ? 'Catatan' : 'Notes'}
+            placeholder={isId ? 'Singkat: apa yang sudah dikerjakan.' : 'Short note on what was done.'}
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+            required
+          />
+        </div>
+        <div className="mt-6 space-y-4 lg:mt-0">
+          <FileUpload
+            label={isId ? 'Berkas' : 'File'}
+            acceptedTypes={action.requiredEvidenceType}
+            files={files}
+            onFileSelect={handleFileAdd}
+            onFileRemove={handleFileRemove}
+          />
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="md" type="button" onClick={onClose}>
+              {isId ? 'Batal' : 'Cancel'}
+            </Button>
+            <Button
+              variant="primary"
+              size="md"
+              type="submit"
+              isLoading={isSubmitting}
+              disabled={files.length === 0}
+              icon={<CheckCircle2 className="w-4 h-4" />}
+            >
+              {isId ? 'Kirim' : 'Send'}
+            </Button>
           </div>
-        </div>
-
-        {/* Implementation Notes */}
-        <TextArea
-          label={isId ? 'Catatan & Ringkasan Pelaksanaan' : 'Implementation Notes & Summary'}
-          placeholder={isId ? 'Jelaskan bagaimana vendor Anda menerapkan inisiatif ini, metode yang dipakai, atau pihak yang terlibat...' : 'Describe how your company completed this ESG action, equipment used, or key milestones achieved...'}
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
-          required
-        />
-
-        {/* Evidence File Uploader */}
-        <FileUpload
-          label={isId ? `Unggah Bukti Dokumen/Foto (${action.requiredEvidenceType})` : `Upload Evidence (${action.requiredEvidenceType})`}
-          acceptedTypes={action.requiredEvidenceType}
-          files={files}
-          onFileSelect={handleFileAdd}
-          onFileRemove={handleFileRemove}
-        />
-
-        {/* AI Auto-Verification Notice */}
-        <div className="p-3 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl border border-indigo-200/80 dark:border-indigo-900/60 text-xs text-indigo-900 dark:text-indigo-200 flex items-start gap-2">
-          <Sparkles className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-          <p>
-            {isId
-              ? 'Asisten AI ESG Siloam akan otomatis melakukan pra-skrining berkas bukti Anda untuk verifikasi awal sebelum diajukan ke auditor pengadaan.'
-              : 'Our AI ESG Assistant will instantly pre-screen your uploaded evidence for quality and authenticity before sending to the Procurement Auditor queue.'}
-          </p>
-        </div>
-
-        {/* Modal Actions */}
-        <div className="pt-2 flex justify-end gap-2">
-          <Button variant="ghost" size="md" type="button" onClick={onClose}>
-            {isId ? 'Batal' : 'Cancel'}
-          </Button>
-          <Button
-            variant="primary"
-            size="md"
-            type="submit"
-            isLoading={isSubmitting}
-            disabled={files.length === 0}
-            icon={<CheckCircle2 className="w-4 h-4" />}
-          >
-            {isId ? 'Kirim Bukti untuk Verifikasi' : 'Submit for Verification'}
-          </Button>
         </div>
       </form>
     </Modal>

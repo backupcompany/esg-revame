@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguage } from '../../../core/context/LanguageContext';
 import {
   NewsletterArticle,
   PublicLearningGuide,
@@ -46,6 +47,7 @@ import {
 } from 'lucide-react';
 
 export const NewsletterCMSPanel: React.FC = () => {
+  const { isId } = useLanguage();
   const [activeSubTab, setActiveSubTab] = useState<
     'hero' | 'gallery' | 'articles' | 'spotlights' | 'learning' | 'subscribers'
   >('hero');
@@ -307,19 +309,8 @@ export const NewsletterCMSPanel: React.FC = () => {
       <BaseCard padding="md" className="border-l-4 border-[#0f5238] bg-white dark:bg-slate-900 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 bg-emerald-100 dark:bg-emerald-950 text-[#0f5238] dark:text-emerald-300 text-xs font-bold rounded-full flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Executive CMS Controller</span>
-              </span>
-              <span className="text-xs text-slate-400">Media, Carousel & Bulletin Manager</span>
-            </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">
-              Pusat Manajemen Konten & Visual Siloam ESG
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Kelola gambar carousel, galeri fasilitas rumah sakit hijau, artikel buletin, profil mitra, dan pelanggan newsletter.
-            </p>
+            <h2 className="text-lg font-semibold">{isId ? 'Buletin' : 'Bulletin'}</h2>
+            <p className="text-sm italic text-slate-600 dark:text-slate-300">{isId ? 'Slide, galeri, artikel, dan cerita mitra untuk halaman publik.' : 'Slides, gallery, articles, and partner stories for the public page.'}</p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">

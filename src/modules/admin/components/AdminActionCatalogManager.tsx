@@ -7,6 +7,7 @@ import { Input, Select, TextArea } from '../../../core/ui/Form';
 import { PillarBadge } from '../../../core/ui/Badges';
 import { Modal } from '../../../core/ui/FeedbackStates';
 import { PLACEHOLDER_IMAGE, catalogImage } from '../../../core/ui/assets';
+import { useLanguage } from '../../../core/context/LanguageContext';
 import {
   downloadActionCatalogTemplate,
   exportActionsToExcel,
@@ -60,6 +61,7 @@ const PRESET_IMAGES = [
 ];
 
 export const AdminActionCatalogManager: React.FC = () => {
+  const { isId } = useLanguage();
   const [activeSubTab, setActiveSubTab] = useState<'catalog' | 'proposals'>('catalog');
   const [actions, setActions] = useState<ESGAction[]>([]);
   const [proposals, setProposals] = useState<ProposedESGAction[]>([]);
@@ -315,20 +317,8 @@ export const AdminActionCatalogManager: React.FC = () => {
       <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-2xl p-4 sm:p-5 text-white shadow-sm border border-emerald-800/40 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1.5 max-w-3xl">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-2.5 py-0.5 bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 text-xs font-bold rounded-md flex items-center gap-1">
-                <Award className="w-3.5 h-3.5" /> SG-PTS (Siloam Green Supply Points)
-              </span>
-              <span className="px-2 py-0.5 bg-sky-500/20 border border-sky-400/30 text-sky-200 text-[11px] rounded-md font-medium flex items-center gap-1">
-                <Globe className="w-3 h-3" /> Diselaraskan: GRI Standards & POJK 51/2017
-              </span>
-            </div>
-            <h2 className="text-lg sm:text-xl font-black text-white">
-              Manajemen Master Katalog Aksi ESG & Usulan Mitra
-            </h2>
-            <p className="text-xs sm:text-sm text-emerald-100/80 leading-relaxed">
-              Kelola inisiatif aksi keberlanjutan terstandardisasi, panduan langkah praktis dwibahasa (ID & EN), serta tinjau usulan inovasi aksi dari mitra vendor.
-            </p>
+            <h2 className="text-lg font-semibold text-white">{isId ? 'Aksi' : 'Actions'}</h2>
+            <p className="text-sm italic text-emerald-100/80">{isId ? `${actions.length} di katalog. ${pendingProposalsCount} usulan menunggu.` : `${actions.length} in the catalog. ${pendingProposalsCount} proposals waiting.`}</p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">

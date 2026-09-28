@@ -40,6 +40,7 @@ interface AuthContextType {
   signInWithMicrosoft: () => Promise<void>;
   signInWithPassword: (email: string, password: string) => Promise<void>;
   signInAsDemoSuperAdmin: () => Promise<void>;
+  signInAsActor: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshAuth: () => Promise<void>;
   verifyVendor: (vendorId: number, status: string) => Promise<void>;
@@ -59,6 +60,7 @@ const AuthContext = createContext<AuthContextType>({
   signInWithMicrosoft: async () => {},
   signInWithPassword: async () => {},
   signInAsDemoSuperAdmin: async () => {},
+  signInAsActor: async () => {},
   signOut: async () => {},
   refreshAuth: async () => {},
   verifyVendor: async () => {},
@@ -149,6 +151,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!res.ok) {
         throw new Error(data.error || 'Demo login off');
       }
+      setLoading(true);
+      const err = await fetchServerData();
+      if (err === 'not_invited' || err === 'forbidden') throw new Error('not_invited');
+      if (err) throw new Error('Login gagal');
+    });
+  };
+
+  const signInAsActor = async (email: string) => {
+    await withAuthGate('in', async () => {
+      const res = await apiFetch('/api/public/auth/as', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Login gagal');
       setLoading(true);
       const err = await fetchServerData();
       if (err === 'not_invited' || err === 'forbidden') throw new Error('not_invited');
@@ -287,6 +305,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signInWithMicrosoft,
         signInWithPassword,
         signInAsDemoSuperAdmin,
+        signInAsActor,
         signOut,
         refreshAuth,
         verifyVendor,

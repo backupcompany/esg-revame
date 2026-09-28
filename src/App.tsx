@@ -21,6 +21,23 @@ import { NewsletterLandingView } from './modules/newsletter/components/Newslette
 import { AuthModal } from './core/ui/AuthModal';
 import { useAuth } from './core/context/AuthContext';
 
+const PLACE_KEY = 'esg_portal_place';
+const VIEWS = ['public', 'vendor', 'admin', 'onboarding'] as const;
+const TABS: PrimaryTab[] = ['home', 'assessment', 'learn', 'actions', 'impact', 'profile', 'declaration'];
+
+function readPlace(): { view: (typeof VIEWS)[number]; tab: PrimaryTab } {
+  try {
+    const raw = sessionStorage.getItem(PLACE_KEY);
+    if (!raw) return { view: 'public', tab: 'home' };
+    const p = JSON.parse(raw) as { view?: string; tab?: string };
+    const view = VIEWS.find(v => v === p.view) ?? 'public';
+    const tab = TABS.find(t => t === p.tab) ?? 'home';
+    return { view, tab };
+  } catch {
+    return { view: 'public', tab: 'home' };
+  }
+}
+
 function AuthGateOverlay({ kind }: { kind: 'in' | 'out' }) {
   return (
     <div
@@ -44,8 +61,8 @@ export default function App() {
   const needsOnboarding = Boolean(dbUser && vendor && !vendor.onboardingCompleted && !isOperator);
 
   // Main view router: 'public' (newsletter landing) | 'vendor' (vendor portal) | 'admin' (admin operations & CMS) | 'onboarding'
-  const [currentView, setCurrentView] = useState<'public' | 'vendor' | 'admin' | 'onboarding'>('public');
-  const [activeTab, setActiveTab] = useState<PrimaryTab>('home');
+  const [currentView, setCurrentView] = useState<(typeof VIEWS)[number]>(() => readPlace().view);
+  const [activeTab, setActiveTab] = useState<PrimaryTab>(() => readPlace().tab);
   const [theme, setThemeState] = useState<'light' | 'dark'>(getInitialTheme);
   const [reportModalCommitmentId, setReportModalCommitmentId] = useState<string | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
@@ -57,14 +74,16 @@ export default function App() {
   }, [canAccessAdmin, currentView]);
 
   useEffect(() => {
+    sessionStorage.setItem(PLACE_KEY, JSON.stringify({ view: currentView, tab: activeTab }));
+  }, [currentView, activeTab]);
+
+  useEffect(() => {
     if (authLoading) return;
-    if (!dbUser && (currentView === 'vendor' || currentView === 'admin' || currentView === 'onboarding')) {
-      setCurrentView('public');
-    }
+    if (!dbUser && currentView !== 'public') setCurrentView('public');
   }, [authLoading, dbUser, currentView]);
 
   useEffect(() => {
-    if (authLoading || !needsOnboarding) return;
+    if (authLoading || !needsOnboarding || currentView === 'public') return;
     if (currentView !== 'onboarding') setCurrentView('onboarding');
   }, [authLoading, needsOnboarding, currentView]);
 
@@ -158,7 +177,7 @@ export default function App() {
 
   // 3. Authenticated Vendor Portal or Admin Operations
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 font-sans pb-20 md:pb-8 flex flex-col">
+    <div className="min-h-screen bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 font-sans pb-20 md:pb-8 flex flex-col">
       {/* Primary Header */}
       <DesktopHeader
         activeTab={activeTab}
@@ -195,7 +214,9 @@ export default function App() {
             )}
             {activeTab === 'assessment' && <AssessmentView onNavigate={setActiveTab} />}
             {activeTab === 'learn' && <LearnView onNavigate={setActiveTab} />}
-            {activeTab === 'actions' && <ActionsView />}
+            {activeTab === 'actions' && (
+              <ActionsView onNavigate={setActiveTab} onOpenReportModal={handleOpenReportModal} />
+            )}
             {activeTab === 'impact' && (
               <ImpactView
                 initialReportCommitmentId={reportModalCommitmentId}

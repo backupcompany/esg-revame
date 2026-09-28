@@ -53,6 +53,16 @@ export class AssessmentService {
     return data?.questions ?? [];
   }
 
+  async getDraft(): Promise<Record<string, AssessmentAnswerOption>> {
+    const remote = await apiGet<{ answers: Record<string, AssessmentAnswerOption> }>('/api/assessments/draft');
+    return remote?.answers ?? {};
+  }
+
+  async saveDraft(answers: Record<string, AssessmentAnswerOption>): Promise<boolean> {
+    const remote = await apiPost<{ ok?: boolean }>('/api/assessments/draft', { answers });
+    return Boolean(remote?.ok);
+  }
+
   async saveResult(answers: Record<string, AssessmentAnswerOption>): Promise<AssessmentResult | null> {
     const remote = await apiPost<{
       success?: boolean;

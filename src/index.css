@@ -20,12 +20,106 @@
     color-scheme: light;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   html.dark body {
     color-scheme: dark;
+  }
+
+  #dampak,
+  #galeri,
+  #berita,
+  #edukasi,
+  #cara,
+  #spotlight,
+  #faq,
+  #langganan {
+    scroll-margin-top: 1.5rem;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     letter-spacing: -0.025em;
   }
+}
+
+/* Public landing only. Portal keeps Plus Jakarta. */
+.esg-public {
+  --ep-bg: hsl(260 87% 3%);
+  --ep-fg: hsl(40 6% 95%);
+  --ep-hero: hsl(40 10% 96%);
+  --ep-sub: hsl(40 6% 82%);
+  --ep-primary: hsl(121 95% 76%);
+  --ep-primary-fg: hsl(0 0% 5%);
+  font-family: Geist, ui-sans-serif, system-ui, sans-serif;
+  background: var(--ep-bg);
+  color: var(--ep-fg);
+  letter-spacing: -0.011em;
+}
+
+.liquid-glass {
+  position: relative;
+  background: rgba(255, 255, 255, 0.01);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(4px);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.liquid-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1.4px;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.15) 80%,
+    rgba(255, 255, 255, 0.45) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+@keyframes esg-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.esg-marquee {
+  animation: esg-marquee 4.5s linear infinite;
+}
+
+.nav-drop {
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+.nav-drop.open {
+  grid-template-rows: 1fr;
+}
+.nav-drop > .nav-drop-inner {
+  overflow: hidden;
+}
+
+@media print {
+  html, body, #root, #root > div {
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .no-print { display: none !important; }
+}
+
+.esg-hero-video::-webkit-media-controls,
+.esg-hero-video::-webkit-media-controls-enclosure,
+.esg-hero-video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
 }

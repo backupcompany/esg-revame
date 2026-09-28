@@ -37,11 +37,11 @@ export const Modal: React.FC<ModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
       <div
-        className={`w-full ${widthClasses[maxWidth]} bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col`}
+        className={`w-full ${widthClasses[maxWidth]} bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col`}
       >
         {title && (
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{title}</h3>
+            <h3 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">{title}</h3>
             <button
               onClick={onClose}
               className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-md"

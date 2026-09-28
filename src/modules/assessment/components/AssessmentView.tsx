@@ -28,6 +28,24 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
+function previewScore(questions: AssessmentQuestion[], answers: Record<string, AssessmentAnswerOption>) {
+  const pts = { yes: 10, partially: 5, not_yet: 0 } as const;
+  const pillars = { E: { e: 0, m: 0 }, S: { e: 0, m: 0 }, G: { e: 0, m: 0 } };
+  let earned = 0;
+  let max = 0;
+  for (const q of questions) {
+    const a = answers[q.id];
+    if (a !== 'yes' && a !== 'partially' && a !== 'not_yet') continue;
+    const bucket = pillars[q.pillar];
+    if (!bucket) continue;
+    bucket.e += pts[a];
+    bucket.m += 10;
+    earned += pts[a];
+    max += 10;
+  }
+  return { pct: max ? Math.round((earned / max) * 100) : 0, earned, max, pillars };
+}
+
 interface AssessmentViewProps {
   onNavigate: (tab: PrimaryTab) => void;
 }
@@ -41,22 +59,29 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
   const [history, setHistory] = useState<any[]>([]);
   const [questions, setQuestions] = useState<AssessmentQuestion[]>([]);
   const [bankReady, setBankReady] = useState(false);
+  const [cursor, setCursor] = useState(0);
+  const [shownScore, setShownScore] = useState(0);
+  const [scoreRun, setScoreRun] = useState(0);
+  const [scoreError, setScoreError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const [saved, bank] = await Promise.all([
+      const [saved, bank, draft] = await Promise.all([
         assessmentService.getSavedResult(),
-        assessmentService.loadBank()
+        assessmentService.loadBank(),
+        assessmentService.getDraft()
       ]);
       if (cancelled) return;
       setQuestions(bank);
       setBankReady(true);
       if (saved) {
         setResult(saved);
-        if (saved.answers) {
-          setAnswers(saved.answers);
-        }
+        if (saved.answers) setAnswers(saved.answers);
+        setShownScore(saved.overallPercentage);
+        setScoreRun(1);
+      } else if (draft && Object.keys(draft).length) {
+        setAnswers(draft);
       }
       setHistory(await assessmentService.getAssessmentHistory());
     })();
@@ -70,7 +95,15 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
     : 0;
 
   const handleOptionSelect = (questionId: string, option: AssessmentAnswerOption) => {
-    setAnswers(prev => ({ ...prev, [questionId]: option }));
+    if (scoreRun > 0) return;
+    setAnswers(prev => {
+      const next = { ...prev, [questionId]: option };
+      const idx = questions.findIndex(q => q.id === questionId);
+      const rest = questions.findIndex((q, i) => i > idx && !next[q.id]);
+      if (rest >= 0) setCursor(rest);
+      void assessmentService.saveDraft(next);
+      return next;
+    });
   };
 
   const toggleWhy = (questionId: string) => {
@@ -79,11 +112,17 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (scoreRun > 0) return;
     setIsSubmitting(true);
 
     try {
       const calculated = await assessmentService.saveResult(answers);
-      if (!calculated) return;
+      setScoreRun(n => n + 1);
+      if (!calculated) {
+        setScoreError(isId ? 'Angka di kanan sudah dihitung. Server belum menyimpan.' : 'The score on the right is ready. The server did not save it.');
+        return;
+      }
+      setScoreError('');
       setResult(calculated);
       setHistory(await assessmentService.getAssessmentHistory());
 
@@ -169,13 +208,23 @@ Note: This score is a diagnostic guide for operational improvement and does not 
     }
   };
 
-  // Group questions by pillar
-  const envQuestions = questions.filter(q => q.pillar === 'E');
-  const socQuestions = questions.filter(q => q.pillar === 'S');
-  const govQuestions = questions.filter(q => q.pillar === 'G');
+  useEffect(() => {
+    if (!scoreRun) return;
+    const { pct } = previewScore(questions, answers);
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / 900);
+      setShownScore(Math.round(pct * t));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    setShownScore(0);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [scoreRun]);
 
   // ================= RESULTS VIEW =================
-  if (result) {
+  if (result && scoreRun === 0) {
     const previousScore = result.previousResult?.overallPercentage;
     const scoreDiff = previousScore !== undefined ? result.overallPercentage - previousScore : null;
 
@@ -485,7 +534,7 @@ Note: This score is a diagnostic guide for operational improvement and does not 
             </h3>
             <div className="space-y-3">
               {history.map((item, i) => (
-                <div key={i} className="flex items-center justify-between bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 text-xs">
+                <div key={i} className="flex items-center justify-between py-3 border-b border-slate-200 dark:border-slate-800 text-xs">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 font-bold flex items-center justify-center">
                       #{history.length - i}
@@ -523,116 +572,83 @@ Note: This score is a diagnostic guide for operational improvement and does not 
     );
   }
 
+  const locked = scoreRun > 0;
+  const active = questions[Math.min(cursor, questions.length - 1)];
+  const pillarName = (p: string) =>
+    p === 'E' ? (isId ? 'Lingkungan' : 'Environment')
+    : p === 'S' ? (isId ? 'Sosial' : 'Social')
+    : (isId ? 'Tata kelola' : 'Governance');
+
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-8 text-left animate-fade-in">
-      {/* Header & Intro Section */}
-      <section className="space-y-4">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 tracking-tight">
-          {isId ? 'ESG Starter Assessment (Diagnostik Rekanan)' : 'ESG Starter Assessment'}
-        </h1>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 text-left">
+      <h1 className="text-2xl font-semibold tracking-tight">{isId ? 'Asesmen singkat' : 'Starter assessment'}</h1>
+      <p className="mt-1 text-sm text-slate-500">
+        {answeredCount}/{totalQuestions} {isId ? 'terjawab' : 'answered'}
+        {' · '}
+        {isId ? 'Bukan sertifikasi. Hasilnya rekomendasi belajar dan aksi.' : 'A diagnostic, not a certification. It recommends learning and actions.'}
+      </p>
 
-        {/* Diagnostic Banner */}
-        <div className="bg-white dark:bg-slate-900 shadow-md rounded-3xl p-5 sm:p-6 border-2 border-emerald-500/20 flex items-start gap-4">
-          <div className="bg-emerald-100 dark:bg-emerald-950 text-[#0f5238] dark:text-emerald-300 rounded-full p-2.5 shrink-0 mt-0.5">
-            <Info className="w-5 h-5" />
+      <form onSubmit={handleSubmit} className="mt-8 grid items-start gap-12 lg:grid-cols-[minmax(0,1.4fr)_220px]">
+        <div>
+          <div className="space-y-3">
+            {(['E', 'S', 'G'] as const).map(pillar => (
+              <div key={pillar} className="flex items-center gap-3">
+                <span className="w-24 shrink-0 text-sm text-slate-400">{pillarName(pillar)}</span>
+                <div className="flex gap-1">
+                  {questions.map((q, i) => q.pillar === pillar && (
+                    <button
+                      key={q.id}
+                      type="button"
+                      disabled={locked}
+                      onClick={() => setCursor(i)}
+                      className={`h-9 w-9 rounded-full text-sm font-semibold disabled:cursor-default ${
+                        q.id === active.id ? 'bg-emerald-600 text-white' : answers[q.id] ? 'text-emerald-700 dark:text-emerald-300' : 'text-slate-500'
+                      }`}
+                    >
+                      {q.questionNumber}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="space-y-1">
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-200 leading-relaxed">
-              {isId
-                ? 'Asesmen mandiri ini alat diagnostik operasional — bukan sertifikasi ESG formal dan tidak masuk skor tender Siloam sampai ada kontrak data dengan procurement. Hasilnya: rekomendasi modul belajar dan aksi praktis.'
-                : 'This self-assessment is an operational diagnostic — not a formal ESG certification and not a Siloam tender score until procurement signs a data contract. It recommends learning modules and practical actions.'}
-            </p>
+          <div className="mt-8">{renderQuestionCard(active)}</div>
+          <div className="mt-8 flex gap-3">
+            <button type="button" disabled={locked || cursor === 0} onClick={() => setCursor(i => Math.max(0, i - 1))} className="rounded-full bg-slate-800 px-5 py-2.5 text-sm text-slate-100 disabled:opacity-30 cursor-pointer">
+              {isId ? 'Sebelumnya' : 'Previous'}
+            </button>
+            <button type="button" disabled={locked || cursor >= questions.length - 1} onClick={() => setCursor(i => Math.min(questions.length - 1, i + 1))} className="rounded-full bg-slate-800 px-5 py-2.5 text-sm text-slate-100 disabled:opacity-30 cursor-pointer">
+              {isId ? 'Berikutnya' : 'Next'}
+            </button>
           </div>
         </div>
-      </section>
 
-      {/* Progress Sticky Bar */}
-      <div className="sticky top-16 z-30 bg-[#f8f9fa]/95 dark:bg-slate-950/95 backdrop-blur-md py-3 space-y-2 border-b border-slate-200/50 dark:border-slate-800">
-        <div className="flex justify-between items-center text-xs font-bold">
-          <span className="text-slate-500 uppercase tracking-wider">
-            {isId ? 'Progres Asesmen' : 'Assessment Progress'}
-          </span>
-          <span className="text-[#0f5238] dark:text-emerald-400">
-            {answeredCount} {isId ? 'dari' : 'of'} {totalQuestions} {isId ? 'Terjawab' : 'Answered'}
-          </span>
-        </div>
-
-        <div className="w-full bg-slate-200 dark:bg-slate-800 h-3 rounded-full overflow-hidden relative">
-          <div
-            className="h-full bg-[#0f5238] dark:bg-emerald-500 transition-all duration-300 rounded-full"
-            style={{ width: `${progressPercent}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Questionnaire Form */}
-      <form onSubmit={handleSubmit} className="space-y-12 pb-16">
-        {/* ENVIRONMENTAL PILLAR */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3 border-b-2 border-[#0f5238] pb-3">
-            <div className="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-[#0f5238] dark:text-emerald-300 flex items-center justify-center font-bold text-sm">
-              <Leaf className="w-4 h-4" />
-            </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-              {isId ? 'Pilar Lingkungan / Environmental (5 Pertanyaan)' : 'Environmental (5 Questions)'}
-            </h2>
-          </div>
-
-          <div className="space-y-6">
-            {envQuestions.map(q => renderQuestionCard(q))}
-          </div>
-        </section>
-
-        {/* SOCIAL PILLAR */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3 border-b-2 border-[#8e4e14] pb-3">
-            <div className="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950 text-[#8e4e14] dark:text-amber-300 flex items-center justify-center font-bold text-sm">
-              <Users className="w-4 h-4" />
-            </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-              {isId ? 'Pilar Sosial & K3 / Social (5 Pertanyaan)' : 'Social (5 Questions)'}
-            </h2>
-          </div>
-
-          <div className="space-y-6">
-            {socQuestions.map(q => renderQuestionCard(q))}
-          </div>
-        </section>
-
-        {/* GOVERNANCE PILLAR */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-3 border-b-2 border-indigo-600 pb-3">
-            <div className="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-sm">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-              {isId ? 'Pilar Tata Kelola / Governance (5 Pertanyaan)' : 'Governance (5 Questions)'}
-            </h2>
-          </div>
-
-          <div className="space-y-6">
-            {govQuestions.map(q => renderQuestionCard(q))}
-          </div>
-        </section>
-
-        {/* Submit Section */}
-        <section className="flex flex-col items-center pt-6">
+        <aside className="lg:sticky lg:top-24">
+          <p className="text-sm text-slate-400">{isId ? 'Skor' : 'Score'}</p>
+          <p className="mt-1 text-6xl font-semibold tabular-nums leading-none text-emerald-500">{locked ? shownScore : 0}</p>
+          <p className="mt-1 text-sm text-emerald-500">/ 100</p>
           <button
             type="submit"
-            disabled={isSubmitting || answeredCount === 0}
-            className="bg-[#0f5238] hover:bg-[#0f5238]/90 text-white font-bold text-base px-10 py-4 rounded-full min-h-[52px] shadow-lg hover:shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none flex items-center gap-2 cursor-pointer"
+            disabled={locked || isSubmitting || answeredCount < totalQuestions}
+            className={`mt-6 rounded-full px-5 py-2.5 text-sm font-medium cursor-pointer ${
+              locked || answeredCount < totalQuestions
+                ? 'bg-slate-800 text-slate-500 cursor-default'
+                : 'bg-emerald-600 text-white'
+            }`}
           >
-            <span>{isId ? 'Hitung Hasil Diagnostik' : 'Calculate Diagnostic Results'}</span>
-            <ArrowRight className="w-5 h-5" />
+            {locked ? (isId ? 'Sudah dihitung' : 'Calculated') : isSubmitting ? (isId ? 'Menghitung…' : 'Calculating…') : (isId ? 'Hitung hasil' : 'Calculate')}
           </button>
-          {answeredCount < totalQuestions && (
-            <p className="text-xs text-slate-500 mt-2">
-              {isId
-                ? `Anda dapat mengirim sekarang (${answeredCount}/${totalQuestions} terjawab) atau lengkapi semua untuk hasil terbaik.`
-                : `You can submit now (${answeredCount}/${totalQuestions} answered) or complete all questions for maximum accuracy.`}
-            </p>
+          {scoreError && <p className="mt-3 text-xs text-amber-300">{scoreError}</p>}
+          {locked && (
+            <ul className="mt-6 space-y-1 text-sm text-slate-700 dark:text-slate-200">
+              {(['E', 'S', 'G'] as const).map(key => {
+                const row = previewScore(questions, answers).pillars[key];
+                const pct = row.m ? Math.round((row.e / row.m) * 100) : 0;
+                return <li key={key}>{pillarName(key)} {pct}</li>;
+              })}
+            </ul>
           )}
-        </section>
+        </aside>
       </form>
     </div>
   );
@@ -645,12 +661,9 @@ Note: This score is a diagnostic guide for operational improvement and does not 
     const whyText = isId && q.whyWeAskId ? q.whyWeAskId : q.whyWeAsk;
 
     return (
-      <div
-        key={q.id}
-        className="bg-white dark:bg-slate-900 shadow-sm rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 space-y-4 hover:border-slate-300 transition-all"
-      >
+      <div key={q.id} className="space-y-4">
         <div className="space-y-2">
-          <p className="text-base font-bold text-slate-900 dark:text-slate-100">
+          <p className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
             {q.questionNumber}. {qText}
           </p>
 
@@ -666,31 +679,28 @@ Note: This score is a diagnostic guide for operational improvement and does not 
             </button>
 
             {isExpanded && (
-              <div className="mt-2 p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl text-xs text-slate-600 dark:text-slate-300 italic border border-slate-200/50 dark:border-slate-700/50 animate-fade-in">
-                {whyText}
-              </div>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">{whyText}</p>
             )}
           </div>
         </div>
 
         {/* Answer Options Radio Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid gap-2">
           {[
-            { label: isId ? 'Sudah (Yes)' : 'Yes', value: 'yes' as const },
-            { label: isId ? 'Sebagian (Partially)' : 'Partially', value: 'partially' as const },
-            { label: isId ? 'Belum (Not Yet)' : 'Not Yet', value: 'not_yet' as const },
-            { label: isId ? 'Tidak Relevan (N/A)' : 'Not Applicable', value: 'na' as const }
+            { label: isId ? 'Sudah' : 'Yes', value: 'yes' as const },
+            { label: isId ? 'Sebagian' : 'Partially', value: 'partially' as const },
+            { label: isId ? 'Belum' : 'Not yet', value: 'not_yet' as const },
+            { label: isId ? 'Tidak relevan' : 'Not applicable', value: 'na' as const }
           ].map(opt => {
             const isSelected = currentVal === opt.value;
             return (
               <button
                 key={opt.value}
                 type="button"
+                disabled={locked}
                 onClick={() => handleOptionSelect(q.id, opt.value)}
-                className={`py-3 px-3 rounded-2xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
-                  isSelected
-                    ? 'border-[#0f5238] bg-emerald-50 dark:bg-emerald-950/60 text-[#0f5238] dark:text-emerald-300 shadow-xs'
-                    : 'border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300'
+                className={`py-2 text-left text-sm disabled:cursor-default cursor-pointer ${
+                  isSelected ? 'font-semibold text-emerald-700 dark:text-emerald-300' : 'text-slate-700 dark:text-slate-200'
                 }`}
               >
                 {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[#0f5238] dark:text-emerald-400 shrink-0" />}

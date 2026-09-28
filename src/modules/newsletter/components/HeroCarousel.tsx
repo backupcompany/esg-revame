@@ -184,12 +184,12 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
               </AnimatePresence>
 
               {/* Action Buttons */}
-              <div className="pt-1 sm:pt-3 flex flex-wrap items-center gap-2.5 sm:gap-3.5">
+              <div className="pt-1 sm:pt-3 flex flex-col xs:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-3.5">
                 <button
                   onClick={() =>
                     handleCtaAction(currentSlide.ctaPrimaryAction, currentSlide.targetArticleId)
                   }
-                  className="px-5 sm:px-7 py-2.5 sm:py-3 rounded-lg bg-white hover:bg-emerald-50 text-[#0f5238] font-bold text-xs sm:text-sm shadow-xl active:scale-95 transition-all flex items-center gap-2 cursor-pointer group/btn"
+                  className="w-full sm:w-auto justify-center px-5 sm:px-7 py-3 min-h-12 rounded-lg bg-white hover:bg-emerald-50 text-[#0f5238] font-bold text-sm shadow-xl active:scale-95 transition-all flex items-center gap-2 cursor-pointer group/btn"
                 >
                   <span>{currentSlide.ctaPrimaryText}</span>
                   <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
@@ -200,7 +200,7 @@ export const HeroCarousel: React.FC<HeroCarouselProps> = ({
                     onClick={() =>
                       handleCtaAction(currentSlide.ctaSecondaryAction || 'onboarding')
                     }
-                    className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm border border-white/25 backdrop-blur-md transition-all flex items-center gap-2 cursor-pointer"
+                    className="w-full sm:w-auto justify-center px-4 sm:px-6 py-3 min-h-12 rounded-lg bg-white/10 hover:bg-white/20 text-white font-semibold text-sm border border-white/25 backdrop-blur-md transition-all flex items-center gap-2 cursor-pointer"
                   >
                     <span>{currentSlide.ctaSecondaryText}</span>
                     <ArrowUpRight className="w-4 h-4" />

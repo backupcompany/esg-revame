@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAdminData } from '../hooks/useAdminData';
 import { useAuth } from '../../../core/context/AuthContext';
-import { BaseCard, MetricCard } from '../../../core/ui/Cards';
+import { actionService } from '../../../core/services/actionService';
+import { learnService } from '../../../core/services/learnService';
+import { newsletterService } from '../../newsletter/services/newsletterService';
 import { Button } from '../../../core/ui/Button';
 import { StatusBadge } from '../../../core/ui/Badges';
 import { NewsletterCMSPanel } from '../../newsletter/components/NewsletterCMSPanel';
@@ -9,21 +11,12 @@ import { AdminActionCatalogManager } from './AdminActionCatalogManager';
 import { AdminCourseCreatorStudio } from './AdminCourseCreatorStudio';
 import { CorporateGridDashboard } from './CorporateGridDashboard';
 import { SuperAdminPanel } from './SuperAdminPanel';
-import { BRAND_LOGO } from '../../../core/ui/assets';
 import { authObjectUrl } from '../../../core/services/api';
-import {
-  ShieldCheck,
-  CheckCircle2,
-  Users,
-  Building2,
-  FileSpreadsheet,
-  Globe,
-  Compass,
-  BookOpen
-} from 'lucide-react';
+import { useLanguage } from '../../../core/context/LanguageContext';
 
 export const AdminView: React.FC = () => {
-  const { dbUser } = useAuth();
+  const { dbUser, vendorsList, allUsersList } = useAuth();
+  const { isId } = useLanguage();
   const {
     queue,
     metrics,
@@ -35,11 +28,22 @@ export const AdminView: React.FC = () => {
   const isSuperAdmin = dbUser?.role === 'super_admin';
   const isAdminOrSuper = isSuperAdmin || dbUser?.role === 'admin';
 
-  const [adminTab, setAdminTab] = useState<'corporate-grid' | 'superadmin' | 'audit' | 'catalog' | 'learning' | 'cms'>(
-    isAdminOrSuper ? 'corporate-grid' : 'audit'
-  );
+  const [adminTab, setAdminTab] = useState<'overview' | 'corporate-grid' | 'superadmin' | 'audit' | 'catalog' | 'learning' | 'cms'>('overview');
   const [feedbackMap, setFeedbackMap] = useState<Record<string, string>>({});
   const [filterText, setFilterText] = useState('');
+  const [counts, setCounts] = useState({ actions: 0, lessons: 0, slides: 0, articles: 0 });
+
+  useEffect(() => {
+    if (!isSuperAdmin) return;
+    Promise.all([
+      actionService.getActions(),
+      learnService.getAllModules(),
+      newsletterService.getHeroSlides(false),
+      newsletterService.getAllArticles(),
+    ]).then(([actions, lessons, slides, articles]) => {
+      setCounts({ actions: actions.length, lessons: lessons.length, slides: slides.length, articles: articles.length });
+    }).catch(() => {});
+  }, [isSuperAdmin]);
 
   const handleVerify = async (commitmentId: string) => {
     const fb = feedbackMap[commitmentId] || 'Verified and approved by Ecosystem ESG Audit Team.';
@@ -58,134 +62,83 @@ export const AdminView: React.FC = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 text-left">
-      {/* Header Banner */}
-      <BaseCard padding="lg" className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white border-none shadow-md">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3 mb-2">
-              <img
-                src={BRAND_LOGO}
-                alt="Siloam Hospitals"
-                className="h-8 w-auto bg-white/90 p-1 rounded-lg"
-                onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
-              />
-              <span className="px-2.5 py-1 bg-white/20 backdrop-blur-md rounded-md text-xs font-bold uppercase tracking-wider text-emerald-100">
-                Siloam ESG Orchestrator ({dbUser?.role ? dbUser.role.replace('_', ' ').toUpperCase() : 'ADMIN'})
-              </span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black">
-              <span className="md:hidden">ESG Admin Portal</span>
-              <span className="hidden md:inline">Corporate ESG Review & Administration Portal</span>
-            </h1>
-            <p className="text-xs text-emerald-100 max-w-xl">
-              <span className="md:hidden">Review grid vendor, audit bukti, kelola katalog & CMS.</span>
-              <span className="hidden md:inline">
-              Review corporate vendor ESG grids, manage company email rosters with Excel bulk upload, audit sustainability proofs, and govern supply chain standards.
-              </span>
-            </p>
-          </div>
-
-          {metrics && (
-            <div className="bg-white/10 backdrop-blur-md p-3.5 rounded-xl border border-white/20 text-center min-w-[180px]">
-              <span className="text-xs text-emerald-200 uppercase font-semibold block">Active Vendors</span>
-              <span className="text-2xl font-bold">{metrics.activeVendors} / {metrics.totalVendors}</span>
-            </div>
-          )}
-        </div>
-      </BaseCard>
-
-      {/* Admin Primary Tabs — horizontal scroll on mobile */}
-      <div className="flex flex-nowrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto scrollbar-none -mx-1 px-1">
-        {isAdminOrSuper && (
-          <button
-            onClick={() => setAdminTab('corporate-grid')}
-            className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-              adminTab === 'corporate-grid'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
-            }`}
-          >
-            <Building2 className="w-4 h-4 shrink-0" />
-            <span className="md:hidden">Grid</span>
-            <span className="hidden md:inline">Corporate Grid & ESG Dashboard</span>
-          </button>
-        )}
-
-        {isSuperAdmin && (
-          <button
-            onClick={() => setAdminTab('superadmin')}
-            className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-              adminTab === 'superadmin'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
-            }`}
-          >
-            <FileSpreadsheet className="w-4 h-4 shrink-0" />
-            <span className="md:hidden">Excel</span>
-            <span className="hidden md:inline">Superadmin & Excel Upload</span>
-          </button>
-        )}
-
-        {isAdminOrSuper && (
-          <button
-            onClick={() => setAdminTab('audit')}
-            className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-              adminTab === 'audit'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4 shrink-0" />
-            <span className="md:hidden">Audit ({queue.length})</span>
-            <span className="hidden md:inline">Audit Bukti ({queue.length})</span>
-          </button>
-        )}
-
-        {isSuperAdmin && (
-          <>
-            <button
-              onClick={() => setAdminTab('catalog')}
-              className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                adminTab === 'catalog'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
-              }`}
-            >
-              <Compass className="w-4 h-4 shrink-0" />
-              <span>Katalog Aksi</span>
-            </button>
-
-            <button
-              onClick={() => setAdminTab('learning')}
-              className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                adminTab === 'learning'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
-              }`}
-            >
-              <BookOpen className="w-4 h-4 shrink-0" />
-              <span className="md:hidden">Learn</span>
-              <span className="hidden md:inline">Micro-Learning</span>
-            </button>
-
-            <button
-              onClick={() => setAdminTab('cms')}
-              className={`shrink-0 px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
-                adminTab === 'cms'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50'
-              }`}
-            >
-              <Globe className="w-4 h-4 shrink-0" />
-              <span className="md:hidden">CMS</span>
-              <span className="hidden md:inline">CMS Buletin</span>
-            </button>
-          </>
-        )}
+    <div className="max-w-6xl mx-auto px-4 sm:px-8 py-8 space-y-6 text-left">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Admin</h1>
+        <p className="mt-1 text-sm italic text-slate-600 dark:text-slate-300">
+          {isId
+            ? 'Angka hijau adalah jumlah sekarang. Buka baris hanya kalau ada yang perlu diubah.'
+            : 'The green numbers are the live counts. Open a row only when you need to change something.'}
+        </p>
       </div>
 
-      {adminTab === 'corporate-grid' ? (
+      <div className="flex flex-wrap gap-2 rounded-xl bg-slate-300 px-2 py-2 text-sm dark:bg-slate-800">
+        {([
+          ['overview', isId ? 'Mulai' : 'Start', true],
+          ['corporate-grid', isId ? 'Vendor' : 'Vendors', isAdminOrSuper],
+          ['superadmin', isId ? 'Daftar' : 'Roster', isSuperAdmin],
+          ['audit', `${isId ? 'Bukti' : 'Proof'} (${queue.length})`, isAdminOrSuper],
+          ['catalog', isId ? 'Aksi' : 'Actions', isSuperAdmin],
+          ['learning', isId ? 'Belajar' : 'Learn', isSuperAdmin],
+          ['cms', isId ? 'Buletin' : 'Bulletin', isSuperAdmin],
+        ] as const).filter(([, , show]) => show).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setAdminTab(id)}
+            className={`rounded-lg px-4 py-2 font-semibold cursor-pointer ${
+              adminTab === id ? 'bg-emerald-600 text-white' : 'text-slate-800 dark:text-slate-100'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {adminTab === 'overview' ? (
+        <div>
+          {metrics?.totals && (
+            <div className="mb-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
+              {[
+                [isId ? 'Pohon' : 'Trees', metrics.totals.treesPlanted],
+                ['kWh', metrics.totals.energySavedKwh],
+                [isId ? 'Kertas kg' : 'Paper kg', metrics.totals.paperReducedKg],
+                [isId ? 'Limbah kg' : 'Waste kg', metrics.totals.wasteRecycledKg],
+                [isId ? 'Air L' : 'Water L', metrics.totals.waterSavedLiters],
+                [isId ? 'Orang' : 'People', metrics.totals.peopleBenefited],
+              ].map(([label, value]) => (
+                <p key={String(label)}>
+                  <span className="block text-sm text-slate-500">{label}</span>
+                  <span className="text-3xl font-semibold text-emerald-500">{value}</span>
+                </p>
+              ))}
+            </div>
+          )}
+          <div className="divide-y divide-slate-300 dark:divide-slate-800">
+            {([
+              ['corporate-grid', isId ? 'Vendor' : 'Vendors', metrics ? (isId ? `${metrics.activeVendors} aktif` : `${metrics.activeVendors} active`) : (isId ? 'Perusahaan dan skor' : 'Companies and scores'), metrics?.totalVendors ?? 0, isAdminOrSuper],
+              ['superadmin', isId ? 'Daftar' : 'Roster', isId ? `${allUsersList.length} orang yang bisa masuk` : `${allUsersList.length} people who can sign in`, vendorsList.length, isSuperAdmin],
+              ['audit', isId ? 'Bukti' : 'Proof', isId ? 'Menunggu disetujui atau berkas yang lebih jelas' : 'Waiting for a yes or a clearer file', queue.length, isAdminOrSuper],
+              ['catalog', isId ? 'Aksi' : 'Actions', isId ? 'Yang bisa dipilih vendor' : 'What vendors can pick', counts.actions, isSuperAdmin],
+              ['learning', isId ? 'Belajar' : 'Learn', isId ? 'Pelajaran di katalog' : 'Lessons in the catalog', counts.lessons, isSuperAdmin],
+              ['cms', isId ? 'Buletin' : 'Bulletin', isId ? `${counts.articles} artikel` : `${counts.articles} articles`, counts.slides, isSuperAdmin],
+            ] as const).filter((row) => row[4]).map(([id, title, body, n]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setAdminTab(id)}
+                className="flex w-full items-center justify-between gap-6 py-5 text-left cursor-pointer"
+              >
+                <span>
+                  <span className="block text-lg font-semibold">{title}</span>
+                  <span className="mt-1 block text-sm italic text-slate-600 dark:text-slate-300">{body}</span>
+                </span>
+                <span className="text-3xl font-semibold text-emerald-500">{n}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : adminTab === 'corporate-grid' ? (
         <CorporateGridDashboard />
       ) : adminTab === 'superadmin' ? (
         <SuperAdminPanel />
@@ -197,58 +150,13 @@ export const AdminView: React.FC = () => {
         <AdminActionCatalogManager />
       ) : (
         <>
-          {/* Collective Ecosystem Impact Grid */}
-          {metrics && metrics.totals && (
-            <div className="space-y-3">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <Users className="w-5 h-5 text-emerald-600" /> Aggregated Ecosystem Metrics (All Vendors)
-              </h2>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                <MetricCard
-                  title="Trees Planted"
-                  value={metrics.totals.treesPlanted.toLocaleString()}
-                  unit="trees"
-                  icon={<div className="text-emerald-600">🌳</div>}
-                />
-                <MetricCard
-                  title="Energy Saved"
-                  value={metrics.totals.energySavedKwh.toLocaleString()}
-                  unit="kWh"
-                  icon={<div className="text-emerald-600">⚡</div>}
-                />
-                <MetricCard
-                  title="Waste Recycled"
-                  value={(metrics.totals.wasteRecycledKg / 1000).toFixed(1)}
-                  unit="tons"
-                  icon={<div className="text-emerald-600">♻️</div>}
-                />
-                <MetricCard
-                  title="Water Saved"
-                  value={metrics.totals.waterSavedLiters.toLocaleString()}
-                  unit="liters"
-                  icon={<div className="text-emerald-600">💧</div>}
-                />
-                <MetricCard
-                  title="Active Vendors"
-                  value={metrics.activeVendors}
-                  unit={`of ${metrics.totalVendors}`}
-                  icon={<div className="text-emerald-600">🏢</div>}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Audit Queue Section */}
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-600" /> Vendor Evidence Verification Queue
-              </h2>
+              <h2 className="text-lg font-semibold">{isId ? 'Bukti' : 'Proof'}</h2>
               <div className="relative w-full sm:w-72">
                 <input
                   type="text"
-                  placeholder="Filter by vendor or action..."
+                  placeholder={isId ? 'Saring vendor atau aksi' : 'Filter by vendor or action'}
                   value={filterText}
                   onChange={(e) => setFilterText(e.target.value)}
                   className="w-full px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -257,11 +165,7 @@ export const AdminView: React.FC = () => {
             </div>
 
             {filteredQueue.length === 0 ? (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl p-12 text-center border border-slate-200 dark:border-slate-800">
-                <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-                <h3 className="text-base font-bold text-slate-700 dark:text-slate-300">All proof submissions are verified!</h3>
-                <p className="text-xs text-slate-500 mt-1">There are no pending vendor evidence proofs waiting in the queue.</p>
-              </div>
+              <p className="text-sm italic text-slate-600 dark:text-slate-300">{isId ? 'Tidak ada yang menunggu. Angkanya sudah ada di Mulai.' : 'Nothing is waiting. The counts on Start already include this.'}</p>
             ) : (
               <div className="space-y-4">
                 {filteredQueue.map(item => (

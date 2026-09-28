@@ -61,9 +61,9 @@ export function useLearnData() {
       setSelectedOption(null);
       setIsAnswerSubmitted(false);
     } else {
-      // Completed all lessons in module
       await learnService.completeModule(activeModule.id);
-      await loadModules();
+      setModules(prev => prev.map(m => m.id === activeModule.id ? { ...m, completed: true } : m));
+      setActiveModule(null);
     }
   };
 

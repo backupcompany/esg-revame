@@ -75,6 +75,8 @@ func New(cfg config.Config, pool *pgxpool.Pool) http.Handler {
 		pub.GET("/metrics", s.publicMetrics)
 		pub.POST("/subscribe", s.limitPublic(5), s.subscribe)
 		pub.POST("/auth/login", s.limitPublic(5), s.demoPasswordLogin)
+		pub.GET("/auth/actors", s.limitPublic(20), s.demoActors)
+		pub.POST("/auth/as", s.limitPublic(5), s.demoEnterAs)
 		pub.POST("/auth/demo-admin", s.limitPublic(5), s.demoAdminEnter)
 		pub.POST("/auth/logout", s.limitPublic(20), s.logout)
 		pub.GET("/coc", s.currentCoC)
@@ -143,6 +145,8 @@ func New(cfg config.Config, pool *pgxpool.Pool) http.Handler {
 		authed.GET("/assessment/questions", s.listAssessmentQuestions)
 		authed.GET("/assessments", s.listAssessments)
 		authed.GET("/assessments/latest", s.latestAssessment)
+		authed.GET("/assessments/draft", s.getAssessmentDraft)
+		authed.POST("/assessments/draft", s.saveAssessmentDraft)
 		authed.POST("/assessments", s.createAssessment)
 
 		authed.GET("/actions", s.listActions)

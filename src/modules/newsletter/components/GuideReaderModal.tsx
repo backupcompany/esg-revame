@@ -106,7 +106,7 @@ export const GuideReaderModal: React.FC<GuideReaderModalProps> = ({
 
           {/* Main Content */}
           <div className="text-sm sm:text-base text-slate-800 dark:text-slate-200 space-y-4 whitespace-pre-line leading-relaxed">
-            {guide.content}
+            {guide.content.replace(/\*\*/g, '')}
           </div>
 
           {/* Key Takeaways */}
@@ -119,7 +119,7 @@ export const GuideReaderModal: React.FC<GuideReaderModalProps> = ({
                 {guide.keyTakeaways.map((point, index) => (
                   <li key={index} className="flex items-start gap-2 text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-                    <span>{point}</span>
+                    <span>{point.replace(/\*\*/g, '')}</span>
                   </li>
                 ))}
               </ul>

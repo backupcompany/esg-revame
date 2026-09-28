@@ -39,10 +39,10 @@ export class LearnService {
   }
 
   public async completeModule(moduleId: string): Promise<LearningModule> {
-    await apiPost('/api/learning', { moduleId, completed: true });
+    const saved = await apiPost<{ success?: boolean }>('/api/learning', { moduleId, completed: true });
+    if (!saved?.success) throw new Error('complete failed');
     const full = await this.getModuleById(moduleId);
-    if (!full) throw new Error('Module not found');
-    return { ...full, completed: true };
+    return { ...(full || { id: moduleId } as LearningModule), completed: true };
   }
 
   public async generateCourseWithAI(params: {
@@ -60,7 +60,9 @@ export class LearnService {
     });
     if (!res.ok) throw new Error('course generate failed');
     const data = await res.json();
-    if (data.fallback) throw new Error('AI unavailable');
+    if (data.fallback) {
+      return { title: params.topic, titleId: params.topic, pillar: params.pillar, lessons: [] };
+    }
     return data;
   }
 

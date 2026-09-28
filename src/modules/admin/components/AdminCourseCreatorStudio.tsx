@@ -3,6 +3,7 @@ import { PLACEHOLDER_IMAGE } from '../../../core/ui/assets';
 import { learnService } from '../../../core/services/learnService';
 import { actionService } from '../../../core/services/actionService';
 import { LearningModule, Lesson, ESGPillar, ESGAction } from '../../../core/types';
+import { useLanguage } from '../../../core/context/LanguageContext';
 import { BaseCard } from '../../../core/ui/Cards';
 import { Button } from '../../../core/ui/Button';
 import { Input, TextArea } from '../../../core/ui/Form';
@@ -33,6 +34,7 @@ import {
 } from 'lucide-react';
 
 export const AdminCourseCreatorStudio: React.FC = () => {
+  const { isId } = useLanguage();
   const [modules, setModules] = useState<LearningModule[]>([]);
   const [actions, setActions] = useState<ESGAction[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -174,10 +176,15 @@ Poin penting yang wajib diperhatikan:
 
       setEditingModule(newModule);
       setIsFormOpen(true);
-      setSuccessMessage('✨ Kursus PLANS & Pemetaan Aksi ESG berhasil disusun oleh AI! Silakan review dan sesuaikan.');
+      setSuccessMessage(
+        courseResult.lessons && courseResult.lessons.length > 0
+          ? (isId ? 'Kursus tersusun. Cek isinya, lalu simpan.' : 'Course is ready. Review it, then save.')
+          : (isId ? 'AI tidak menjawab. Draf dari topik ini sudah dibuka.' : 'AI did not answer. A draft from this topic is open.')
+      );
       setTimeout(() => setSuccessMessage(null), 5000);
     } catch (err) {
       console.error('Error generating course:', err);
+      setSuccessMessage(isId ? 'Generate gagal. Coba lagi.' : 'Generate failed. Try again.');
     } finally {
       setIsGeneratingAI(false);
       setIsMatchingActions(false);
@@ -408,15 +415,8 @@ Poin penting yang wajib diperhatikan:
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-1">
-              <span className="px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 font-extrabold text-[11px] uppercase tracking-wider flex items-center gap-1 w-fit">
-                <Sparkles className="w-3.5 h-3.5" /> AI Micro-Learning Studio (Gemini 3.7)
-              </span>
-              <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">
-                Buat Konten Kursus & Kuis Micro-Learning dengan AI
-              </h2>
-              <p className="text-xs text-slate-500 max-w-2xl">
-                Cukup masukkan tema atau isu spesifik vendor, AI akan langsung menyusun materi bite-sized dwibahasa, contoh kasus nyata di lapangan, serta soal kuis interaktif secara instan.
-              </p>
+              <h2 className="text-lg font-semibold">{isId ? 'Belajar' : 'Learn'}</h2>
+              <p className="text-sm italic text-slate-600 dark:text-slate-300">{isId ? 'Tulis topik. Pelajaran dan kuis terisi sendiri.' : 'Write a topic. The lesson and quiz are filled in for you.'}</p>
             </div>
 
             <Button

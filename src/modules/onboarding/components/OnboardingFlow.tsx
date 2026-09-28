@@ -120,39 +120,21 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col justify-between selection:bg-emerald-200 selection:text-emerald-900 transition-colors duration-200">
-      {/* Header */}
-      <header className="w-full top-0 sticky bg-[#f8f9fa]/90 dark:bg-slate-950/90 backdrop-blur-md shadow-xs z-40 border-b border-slate-200/60 dark:border-slate-800/60">
-        <div className="flex justify-between items-center px-6 py-4 max-w-5xl mx-auto">
-          <div className="flex items-center gap-2">
-            {step > 1 && step < 5 && (
-              <button
-                type="button"
-                onClick={handlePrevStep}
-                aria-label="Go back"
-                className="w-9 h-9 rounded-full flex items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 transition-all mr-1 cursor-pointer"
-              >
-                <ArrowLeft className="w-4 h-4" />
+    <div className="min-h-screen bg-slate-200 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans flex flex-col">
+      <header className="sticky top-0 z-40 border-b border-slate-300 bg-slate-200/95 dark:border-slate-800 dark:bg-slate-950/95">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-3">
+            {step > 1 && (
+              <button type="button" onClick={handlePrevStep} className="cursor-pointer text-sm font-semibold text-slate-600 dark:text-slate-300">
+                Back
               </button>
             )}
-            <div className="text-xl font-bold text-[#0f5238] dark:text-emerald-400 flex items-center gap-1.5 tracking-tight">
-              <Leaf className="w-6 h-6 fill-current text-[#0f5238] dark:text-emerald-400" />
-              <span>EcoPartner</span>
-            </div>
+            <span className="font-semibold">ESG Together</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            {step < 5 && (
-              <span className="text-xs font-bold px-3 py-1 bg-emerald-100/80 dark:bg-emerald-950/80 text-[#0f5238] dark:text-emerald-300 rounded-full border border-emerald-200/50 dark:border-emerald-800/50">
-                {step} of 4
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={() => onComplete('home')}
-              className="text-xs font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors cursor-pointer"
-            >
-              Skip to App
+          <div className="flex items-center gap-4 text-sm">
+            {step < 5 && <span className="text-slate-500">{step} of 4</span>}
+            <button type="button" onClick={() => onComplete('home')} className="cursor-pointer font-semibold text-slate-700 dark:text-slate-200">
+              Skip
             </button>
           </div>
         </div>
@@ -162,45 +144,18 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
       <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 max-w-3xl mx-auto w-full">
         {/* ================= STEP 1: WELCOME ================= */}
         {step === 1 && (
-          <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-xl p-8 sm:p-12 text-center flex flex-col items-center relative overflow-hidden border border-slate-200/80 dark:border-slate-800 transition-all animate-fade-in">
-            {/* Step Progress Pill Indicator */}
-            <div className="w-full flex justify-between items-center mb-8">
-              <div className="flex space-x-2 w-full justify-center">
-                <div className="h-2 bg-[#0f5238] dark:bg-emerald-500 rounded-full flex-1 max-w-[70px]" />
-                <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full flex-1 max-w-[70px]" />
-                <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full flex-1 max-w-[70px]" />
-                <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full flex-1 max-w-[70px]" />
-              </div>
-              <span className="text-xs font-bold text-slate-500 ml-4 whitespace-nowrap">1 of 4</span>
-            </div>
-
-            {/* Central Eco Icon */}
-            <div className="w-24 h-24 mb-6 rounded-full bg-[#0f5238]/10 dark:bg-emerald-950/60 flex items-center justify-center shadow-inner relative">
-              <div className="w-16 h-16 rounded-full bg-[#0f5238] text-white flex items-center justify-center shadow-md">
-                <Leaf className="w-8 h-8 fill-current" />
-              </div>
-            </div>
-
-            {/* Message */}
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100 mb-4 tracking-tight">
-              Start Your ESG Journey
-            </h1>
-
-            {/* Supporting copy */}
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 mb-8 max-w-xl leading-relaxed text-center font-normal">
-              ESG does not always require large programs or large investments. Small practical actions across many companies can create meaningful collective impact.
+          <div className="w-full max-w-xl text-left">
+            <h1 className="text-3xl font-semibold tracking-tight">Start here</h1>
+            <p className="mt-3 text-lg italic text-slate-600 dark:text-slate-300">
+              Three short steps: your company, how far along you are, then what you want to work on. About three minutes.
             </p>
-
-            {/* CTA */}
             <button
               type="button"
               onClick={handleNextStep}
-              className="bg-[#0f5238] text-white font-semibold text-base rounded-full px-10 py-4 h-14 flex items-center justify-center hover:bg-[#0f5238]/90 active:scale-95 transition-all shadow-md hover:shadow-lg w-full max-w-xs group cursor-pointer"
+              className="mt-8 cursor-pointer rounded-full bg-emerald-600 px-6 py-3 font-semibold text-white"
             >
-              <span>Let's Start</span>
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              Continue
             </button>
-            <p className="mt-3 text-xs font-medium text-slate-400">Takes less than 3 minutes</p>
           </div>
         )}
 
@@ -224,7 +179,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
             </div>
 
             {/* Form Container */}
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-lg border-t-4 border-[#0f5238] border-x border-b border-slate-200/80 dark:border-slate-800 space-y-6">
+            <div className="space-y-6">
               <form
                 onSubmit={e => {
                   e.preventDefault();
@@ -437,10 +392,8 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                     key={opt.id}
                     type="button"
                     onClick={() => setFormData({ ...formData, esgFamiliarity: opt.id })}
-                    className={`text-left p-6 rounded-3xl border-2 transition-all duration-200 flex flex-col justify-between cursor-pointer hover:-translate-y-0.5 ${
-                      isSelected
-                        ? 'border-[#0f5238] bg-emerald-50 dark:bg-emerald-950/40 shadow-md text-emerald-950 dark:text-emerald-100'
-                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-[#0f5238]/50 shadow-xs'
+                    className={`cursor-pointer border-b border-slate-300 py-4 text-left dark:border-slate-800 ${
+                      isSelected ? 'text-emerald-700 dark:text-emerald-300' : ''
                     }`}
                   >
                     <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4 shrink-0">
@@ -514,10 +467,8 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                     key={obj.id}
                     type="button"
                     onClick={() => toggleObjective(obj.id)}
-                    className={`text-left p-5 rounded-3xl border-2 transition-all duration-200 flex items-start gap-3 cursor-pointer ${
-                      isSelected
-                        ? 'border-[#0f5238] bg-emerald-50 dark:bg-emerald-950/40 shadow-xs'
-                        : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-[#0f5238]/50 shadow-xs'
+                    className={`flex cursor-pointer items-start gap-3 border-b border-slate-300 py-4 text-left dark:border-slate-800 ${
+                      isSelected ? 'text-emerald-700 dark:text-emerald-300' : ''
                     }`}
                   >
                     <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 mt-0.5">
@@ -580,21 +531,9 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
             </div>
 
             {/* Feature Banner Box */}
-            <div className="w-full bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-md border border-slate-200/80 dark:border-slate-800 text-left">
-              <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-[#0f5238] dark:text-emerald-300 flex items-center justify-center shrink-0">
-                  <Rocket className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
-                    ESG Starter Assessment
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    A simple diagnostic tool to evaluate your practices across Environmental, Social, and Governance pillars.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <p className="text-sm italic text-slate-600 dark:text-slate-300">
+              Next: 15 questions. The score becomes your level.
+            </p>
 
             {/* Action CTAs */}
             <div className="w-full space-y-3 pt-2">
@@ -622,9 +561,6 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
       </main>
 
       {/* Footer */}
-      <footer className="py-4 text-center text-xs text-slate-400">
-        EcoPartner • Micro & SME Vendor ESG Enablement
-      </footer>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -52,7 +53,8 @@ func (s *Server) limitPublic(max int) gin.HandlerFunc {
 		if ip == "" {
 			ip = "unknown"
 		}
-		if !s.pubLimit.allow("pub:"+ip+":"+c.FullPath(), max, time.Minute) {
+		// include max in key so stacked limitPublic(N) middlewares (e.g. group 60 + login 5) don't share one hit bucket
+		if !s.pubLimit.allow(fmt.Sprintf("pub:%s:%s:%d", ip, c.FullPath(), max), max, time.Minute) {
 			httpx.Error(c.Writer, http.StatusTooManyRequests, "rate limited")
 			c.Abort()
 			return

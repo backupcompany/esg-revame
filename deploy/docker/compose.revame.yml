@@ -1,0 +1,36 @@
+name: esg-revame
+
+services:
+  esg-api:
+    build:
+      context: ../../backend
+      dockerfile: ../deploy/docker/Dockerfile
+    container_name: esg-revame-api
+    restart: unless-stopped
+    network_mode: host
+    env_file:
+      - /opt/apps/esg-revame/.env
+    environment:
+      API_ADDR: 127.0.0.1:8085
+      SQL_SSLMODE: disable
+      ESG_ALLOW_DEMO: "false"
+      ESG_ENFORCE_ALLOWLIST: "true"
+      ESG_UPLOAD_DIR: /app/data/uploads
+    volumes:
+      - /opt/apps/esg-revame/backend/data/uploads:/app/data/uploads
+      - /opt/apps/esg-revame/.env:/app/.env:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8085/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  esg-web:
+    image: nginx:1.27-alpine
+    container_name: esg-revame-web
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /opt/apps/esg-revame/dist:/usr/share/nginx/html:ro
+      - /opt/apps/esg-revame/deploy/docker/nginx.revame.conf:/etc/nginx/conf.d/default.conf:ro
