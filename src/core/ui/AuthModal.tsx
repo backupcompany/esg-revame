@@ -151,19 +151,21 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSigne
               </p>
             )}
             {actors.length > 0 && (
-              <div className="space-y-2">
+              <div>
                 <p className="text-sm font-semibold">{isId ? 'Masuk sebagai' : 'Sign in as'}</p>
-                {actors.map((a) => (
-                  <button
-                    key={a.email}
-                    type="button"
-                    onClick={() => void runAuth(() => signInAsActor(a.email))}
-                    className="flex w-full min-h-12 cursor-pointer items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-left dark:border-slate-700"
-                  >
-                    <span className="font-semibold">{roleLabel[a.role] || a.role}</span>
-                    <span className="text-sm italic text-slate-500">{a.company || a.name}</span>
-                  </button>
-                ))}
+                <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+                  {actors.map((a) => (
+                    <button
+                      key={a.email}
+                      type="button"
+                      onClick={() => void runAuth(() => signInAsActor(a.email))}
+                      className="shrink-0 cursor-pointer rounded-xl border border-slate-200 px-3 py-2 text-left dark:border-slate-700"
+                    >
+                      <span className="block text-sm font-semibold whitespace-nowrap">{roleLabel[a.role] || a.role}</span>
+                      <span className="block text-xs italic text-slate-500 whitespace-nowrap">{a.company || a.name}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
             <form
