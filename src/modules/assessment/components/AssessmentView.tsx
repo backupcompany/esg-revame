@@ -52,7 +52,7 @@ interface AssessmentViewProps {
 
 export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) => {
   const { lang, isId } = useLanguage();
-  const { dbUser } = useAuth();
+  const { dbUser, signOut } = useAuth();
   const [answers, setAnswers] = useState<Record<string, AssessmentAnswerOption>>({});
   const [expandedWhy, setExpandedWhy] = useState<Record<string, boolean>>({});
   const [result, setResult] = useState<AssessmentResult | null>(null);
@@ -65,6 +65,13 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
   const [scoreRun, setScoreRun] = useState(0);
   const [scoreError, setScoreError] = useState('');
   const draftChain = React.useRef(Promise.resolve());
+
+  const kicked = React.useRef(false);
+  useEffect(() => {
+    if (kicked.current || !dbUser || dbUser.vendorId) return;
+    kicked.current = true;
+    void signOut();
+  }, [dbUser, signOut]);
 
   useEffect(() => {
     let cancelled = false;
@@ -581,15 +588,7 @@ Note: This score is a diagnostic guide for operational improvement and does not 
       </div>
     );
   }
-  if (dbUser && !dbUser.vendorId) {
-    return (
-      <div className="max-w-4xl mx-auto px-4 py-16 text-sm text-slate-600 dark:text-slate-300">
-        {isId
-          ? 'Akun ini tidak terhubung ke perusahaan. Skor asesmen disimpan lewat akun PIC atau staf vendor.'
-          : 'This account is not linked to a company. The assessment score is saved from the vendor PIC or staff account.'}
-      </div>
-    );
-  }
+  if (dbUser && !dbUser.vendorId) return null;
 
   if (!totalQuestions) {
     return (

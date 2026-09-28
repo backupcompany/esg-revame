@@ -192,19 +192,19 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
 
   const enter = () => (signedIn ? onNavigateToVendor('home') : onOpenAuth?.());
 
-  useEffect(() => {
-    const v = heroVideo.current;
-    if (!v) return;
-    v.muted = true;
-    v.defaultMuted = true;
+  const armHero = useRef((node: HTMLVideoElement | null) => {
+    heroVideo.current = node;
+    if (!node) return;
+    node.muted = true;
+    node.defaultMuted = true;
+    node.loop = true;
     const start = () => {
-      v.muted = true;
-      void v.play().catch(() => {});
+      node.muted = true;
+      if (node.paused) void node.play().catch(() => {});
     };
     start();
-    v.addEventListener('loadeddata', start);
-    return () => v.removeEventListener('loadeddata', start);
-  }, []);
+    node.addEventListener('canplay', start, { once: true });
+  }).current;
 
   useEffect(() => {
     if (heroIndex === null) return;
@@ -232,7 +232,7 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
     <div className="esg-public dark min-h-screen">
       <section id="hero" className="relative min-h-screen overflow-hidden">
         <video
-          ref={heroVideo}
+          ref={armHero}
           className="esg-hero-video pointer-events-none absolute inset-0 h-full w-full object-cover"
           src={HERO_VIDEO}
           autoPlay

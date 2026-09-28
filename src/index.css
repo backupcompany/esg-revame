@@ -119,7 +119,12 @@
 
 .esg-hero-video::-webkit-media-controls,
 .esg-hero-video::-webkit-media-controls-enclosure,
-.esg-hero-video::-webkit-media-controls-start-playback-button {
+.esg-hero-video::-webkit-media-controls-panel,
+.esg-hero-video::-webkit-media-controls-play-button,
+.esg-hero-video::-webkit-media-controls-start-playback-button,
+.esg-hero-video::-webkit-media-controls-overlay-play-button {
   display: none !important;
+  opacity: 0 !important;
   -webkit-appearance: none;
+  appearance: none;
 }
