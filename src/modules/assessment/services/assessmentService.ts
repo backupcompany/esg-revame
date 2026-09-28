@@ -9,7 +9,7 @@ import {
   AssessmentHistoryItem
 } from '../types';
 import { ESGPillar } from '../../../core/types';
-import { apiGet, apiPost } from '../../../core/services/api';
+import { apiFetch, apiGet, apiPost } from '../../../core/services/api';
 
 function emptyPillar(pillar: ESGPillar, title: string): AssessmentPillarResult {
   return { pillar, title, earnedPoints: 0, maxPoints: 0, percentage: 0, answeredCount: 0 };
@@ -63,12 +63,18 @@ export class AssessmentService {
     return Boolean(remote?.ok);
   }
 
-  async saveResult(answers: Record<string, AssessmentAnswerOption>): Promise<AssessmentResult | null> {
-    const remote = await apiPost<{
-      success?: boolean;
+  async saveResult(answers: Record<string, AssessmentAnswerOption>): Promise<{ result: AssessmentResult | null; error?: string }> {
+    const res = await apiFetch('/api/assessments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ answers }),
+    });
+    const data = await res.json().catch(() => ({})) as {
+      error?: string;
       assessment?: Partial<AssessmentResult> & Record<string, unknown>;
-    }>('/api/assessments', { answers });
-    return remote?.assessment ? asAssessmentResult(remote.assessment) : null;
+    };
+    if (!res.ok) return { result: null, error: data.error || 'save failed' };
+    return { result: data.assessment ? asAssessmentResult(data.assessment) : null, error: data.assessment ? undefined : 'empty' };
   }
 
   async getSavedResult(): Promise<AssessmentResult | null> {

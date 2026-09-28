@@ -3,6 +3,7 @@ import { AssessmentAnswerOption, AssessmentQuestion, AssessmentResult, Recommend
 import { assessmentService } from '../services/assessmentService';
 import { PrimaryTab } from '../../../core/types';
 import { useLanguage } from '../../../core/context/LanguageContext';
+import { useAuth } from '../../../core/context/AuthContext';
 import {
   Leaf,
   Users,
@@ -51,6 +52,7 @@ interface AssessmentViewProps {
 
 export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) => {
   const { lang, isId } = useLanguage();
+  const { dbUser } = useAuth();
   const [answers, setAnswers] = useState<Record<string, AssessmentAnswerOption>>({});
   const [expandedWhy, setExpandedWhy] = useState<Record<string, boolean>>({});
   const [result, setResult] = useState<AssessmentResult | null>(null);
@@ -116,9 +118,24 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
     setIsSubmitting(true);
 
     try {
-      const calculated = await assessmentService.saveResult(answers);
+      const { result: calculated, error } = await assessmentService.saveResult(answers);
       if (!calculated) {
-        setScoreError(isId ? 'Server belum menyimpan. Coba Hitung hasil lagi.' : 'The server did not save it. Calculate again.');
+        if (error === 'already_scored') {
+          const saved = await assessmentService.getSavedResult();
+          if (saved) {
+            setResult(saved);
+            setAnswers(saved.answers || answers);
+            setShownScore(saved.overallPercentage);
+            setScoreRun(1);
+            setScoreError('');
+            return;
+          }
+        }
+        setScoreError(
+          error === 'User must be assigned to a vendor company'
+            ? (isId ? 'Akun ini tidak terhubung ke perusahaan. Masuk sebagai PIC atau staf.' : 'This account is not linked to a company. Sign in as the vendor PIC or staff.')
+            : (isId ? 'Server belum menyimpan. Coba Hitung hasil lagi.' : 'The server did not save it. Calculate again.')
+        );
         return;
       }
       setScoreRun(n => n + 1);
@@ -564,6 +581,16 @@ Note: This score is a diagnostic guide for operational improvement and does not 
       </div>
     );
   }
+  if (dbUser && !dbUser.vendorId) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-16 text-sm text-slate-600 dark:text-slate-300">
+        {isId
+          ? 'Akun ini tidak terhubung ke perusahaan. Skor asesmen disimpan lewat akun PIC atau staf vendor.'
+          : 'This account is not linked to a company. The assessment score is saved from the vendor PIC or staff account.'}
+      </div>
+    );
+  }
+
   if (!totalQuestions) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-sm text-slate-500">
