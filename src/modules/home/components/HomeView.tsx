@@ -16,15 +16,20 @@ interface HomeViewProps {
 }
 
 const LEVEL_COLOR: Record<string, string> = {
-  Starter: '#5E9A6B',
-  Bronze: '#C0845A',
-  Silver: '#9AA3AD',
-  Gold: '#D4B36A',
-  Now: '#4F8F62',
+  Starter: '#34D399',
+  Bronze: '#C9844A',
+  Silver: '#A3ADB8',
+  Gold: '#C9A84C',
 };
+const NOW = '#7D6EAE';
 
 function LevelMark({ level }: { level: string }) {
   return <span className="inline-block h-3.5 w-3.5 shrink-0 rounded-full" style={{ background: LEVEL_COLOR[level] || LEVEL_COLOR.Starter }} aria-hidden />;
+}
+
+function StepMark({ tone }: { tone: string }) {
+  const color = tone === 'now' ? NOW : (LEVEL_COLOR[tone] || LEVEL_COLOR.Starter);
+  return <span className="inline-block h-3.5 w-3.5 shrink-0 rounded-full" style={{ background: color }} aria-hidden />;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModal }) => {
@@ -155,7 +160,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-50">
           {isId ? `Halo, ${name}` : `Hello, ${name}`}
         </h1>
-        <p className="mt-3 text-6xl font-semibold tracking-tight text-emerald-500">{vendor.esgScore}<span className="text-2xl text-emerald-500">/100</span></p>
+        <p className="mt-3 text-6xl font-semibold tracking-tight text-emerald-400">{vendor.esgScore}<span className="text-2xl text-emerald-400">/100</span></p>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{isId ? 'Skor asesmen terakhir' : 'Latest assessment score'} · {completedCount} {isId ? 'aksi terverifikasi' : 'verified actions'}</p>
       </header>
 
@@ -189,7 +194,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
       <button
         type="button"
         onClick={nextStep.go}
-        className={`w-full rounded-3xl px-6 py-5 text-left cursor-pointer ${vendor.esgMaturityLevel === 'Silver' || vendor.esgMaturityLevel === 'Gold' ? 'text-slate-900' : 'text-white'}`}
+        className={`w-full rounded-3xl px-6 py-5 text-left cursor-pointer ${vendor.esgMaturityLevel === 'Bronze' ? 'text-white' : 'text-slate-900'}`}
         style={{ background: LEVEL_COLOR[vendor.esgMaturityLevel] || LEVEL_COLOR.Starter }}
       >
         <p className="text-sm opacity-80">{isId ? 'Lakukan ini dulu' : 'Do this next'}</p>
@@ -205,15 +210,16 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
             <li key={m.id}>
               <button type="button" onClick={m.onClick} className="flex w-full items-center justify-between gap-3 py-3 text-left cursor-pointer">
                 <span className="flex items-center gap-3">
-                  {m.id === 'm0'
-                    ? <LevelMark level="Now" />
-                    : <LevelMark level={m.id === 'm1' ? 'Starter' : m.id === 'm2' ? 'Bronze' : m.id === 'm3' ? 'Silver' : 'Gold'} />}
+                  <StepMark tone={m.id === 'm1' ? 'now' : m.id === 'm2' ? 'Bronze' : m.id === 'm3' ? 'Silver' : m.id === 'm4' ? 'Gold' : 'Starter'} />
                   <span>
                     <span className="block font-medium">{m.title}</span>
                     <span className="block text-sm text-slate-500">{m.subtitle}</span>
                   </span>
                 </span>
-                <span className="text-xs uppercase text-slate-400">{m.status === 'completed' ? (isId ? 'Selesai' : 'Done') : m.status === 'active' ? (isId ? 'Sekarang' : 'Now') : (isId ? 'Nanti' : 'Later')}</span>
+                <span
+                  className="text-xs uppercase text-slate-400"
+                  style={m.id === 'm1' ? { color: NOW } : m.status === 'completed' ? { color: LEVEL_COLOR.Starter } : undefined}
+                >{m.status === 'completed' ? (isId ? 'Selesai' : 'Done') : m.status === 'active' ? (isId ? 'Sekarang' : 'Now') : (isId ? 'Nanti' : 'Later')}</span>
               </button>
             </li>
           ))}
@@ -223,7 +229,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
       <section>
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">{isId ? `Sedang dikerjakan (${activeCommitments.length})` : `In progress (${activeCommitments.length})`}</h2>
-          <button type="button" onClick={() => onNavigate('actions')} className="text-sm font-semibold text-emerald-700 dark:text-emerald-300 cursor-pointer">{isId ? 'Semua aksi' : 'All actions'}</button>
+          <button type="button" onClick={() => onNavigate('actions')} className="text-sm font-semibold text-emerald-400 cursor-pointer">{isId ? 'Semua aksi' : 'All actions'}</button>
         </div>
         {activeCommitments.length === 0 ? (
           <p className="mt-2 text-sm text-slate-500">{isId ? 'Belum ada. Pilih satu aksi kalau asesmen dan kode etik sudah beres.' : 'None yet. Pick an action after the code and assessment.'}</p>
@@ -235,7 +241,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
               return (
                 <li key={cmt.id} className="flex items-center justify-between gap-3 py-3">
                   <span className="font-medium">{isId ? (action.titleId || action.title) : action.title}</span>
-                  <button type="button" onClick={() => onOpenReportModal(cmt.id)} className="shrink-0 text-sm font-semibold text-emerald-700 cursor-pointer">
+                  <button type="button" onClick={() => onOpenReportModal(cmt.id)} className="shrink-0 text-sm font-semibold text-emerald-400 cursor-pointer">
                     {cmt.status === 'Submitted' ? (isId ? 'Perbarui bukti' : 'Update proof') : (isId ? 'Unggah bukti' : 'Upload proof')}
                   </button>
                 </li>

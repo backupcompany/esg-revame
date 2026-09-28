@@ -9,7 +9,6 @@ import {
 import { newsletterService } from '../services/newsletterService';
 import { EcosystemMetrics, PrimaryTab } from '../../../core/types';
 import { ArticleReaderModal } from './ArticleReaderModal';
-import { GuideReaderModal } from './GuideReaderModal';
 import { PLACEHOLDER_IMAGE } from '../../../core/ui/assets';
 import { LanguageToggle } from '../../../core/ui/Navigation';
 import { useAuth } from '../../../core/context/AuthContext';
@@ -72,11 +71,13 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
   const [heroIndex, setHeroIndex] = useState<number | null>(null);
   const [articleIndex, setArticleIndex] = useState<number | null>(null);
   const [articleFull, setArticleFull] = useState<NewsletterArticle[]>([]);
+  const [guideIndex, setGuideIndex] = useState<number | null>(null);
+  const [guideFull, setGuideFull] = useState<PublicLearningGuide[]>([]);
   const heroScroll = useRef<HTMLDivElement>(null);
   const articleScroll = useRef<HTMLDivElement>(null);
+  const guideScroll = useRef<HTMLDivElement>(null);
   const heroVideo = useRef<HTMLVideoElement>(null);
   const [activeArticle, setActiveArticle] = useState<NewsletterArticle | null>(null);
-  const [activeGuide, setActiveGuide] = useState<PublicLearningGuide | null>(null);
   const [subscriberEmail, setSubscriberEmail] = useState('');
   const [subscriberName, setSubscriberName] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -139,11 +140,6 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
   const openArticle = async (id: string) => {
     const full = await newsletterService.getArticleById(id);
     if (full) setActiveArticle(full);
-  };
-
-  const openGuide = async (id: string) => {
-    const full = await newsletterService.getGuideById(id);
-    if (full) setActiveGuide(full);
   };
 
   const handleSubscribe = async (e: React.FormEvent) => {
@@ -226,6 +222,22 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
     if (el && articleScroll.current) articleScroll.current.scrollTo({ top: Math.max(0, el.offsetTop - 56) });
     return () => { stop = true; };
   }, [articleIndex]);
+
+  useEffect(() => {
+    if (guideIndex === null) return;
+    let stop = false;
+    Promise.all(guides.map(g => newsletterService.getGuideById(g.id))).then(rows => {
+      if (stop) return;
+      setGuideFull(rows.filter((g): g is PublicLearningGuide => !!g));
+      requestAnimationFrame(() => {
+        const el = document.getElementById(`gd-${guideIndex}`);
+        if (el && guideScroll.current) guideScroll.current.scrollTo({ top: Math.max(0, el.offsetTop - 56) });
+      });
+    });
+    const el = document.getElementById(`gd-${guideIndex}`);
+    if (el && guideScroll.current) guideScroll.current.scrollTo({ top: Math.max(0, el.offsetTop - 56) });
+    return () => { stop = true; };
+  }, [guideIndex]);
 
   return (
     <div className="esg-public dark min-h-screen">
@@ -374,26 +386,6 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
           </div>
         </section>
 
-        <section id="edukasi" className="space-y-6">
-          <div>
-            <h2 className="text-3xl font-semibold tracking-tight">{isId ? 'Edukasi terbuka' : 'Open learning'}</h2>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {guides.map(guide => (
-              <button
-                key={guide.id}
-                type="button"
-                onClick={() => void openGuide(guide.id)}
-                className="p-1 text-left"
-              >
-                <p className="text-xs text-[var(--ep-primary)]">{guide.pillar} · {guide.readTimeMinutes} {isId ? 'mnt' : 'min'}</p>
-                <h3 className="mt-2 font-semibold">{guide.title}</h3>
-                <p className="mt-2 line-clamp-3 text-sm text-[var(--ep-sub)]">{guide.summary}</p>
-              </button>
-            ))}
-          </div>
-        </section>
-
         <section id="spotlight" className="space-y-6">
           <h2 className="text-3xl font-semibold tracking-tight">{isId ? 'Cerita mitra' : 'Partner stories'}</h2>
           <div className="columns-1 gap-4 md:columns-2 lg:columns-3">
@@ -409,6 +401,28 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
               </div>
             ))}
           </div>
+        </section>
+
+        <section id="edukasi" className="space-y-2">
+          <h2 className="text-3xl font-semibold tracking-tight">{isId ? 'Edukasi terbuka' : 'Open learning'}</h2>
+          <p className="text-sm italic text-[var(--ep-sub)]">{isId ? 'Dua dulu. Isinya ada di dalam.' : 'Two first. The rest is inside.'}</p>
+          {guides.slice(0, 2).map(guide => (
+            <button
+              key={guide.id}
+              type="button"
+              onClick={() => setGuideIndex(guides.indexOf(guide))}
+              className="block w-full cursor-pointer border-b border-white/10 py-5 text-left"
+            >
+              <p className="text-sm text-[var(--ep-primary)]">{guide.pillar} · {guide.readTimeMinutes} {isId ? 'mnt' : 'min'}</p>
+              <h3 className="mt-1 text-lg font-semibold">{guide.title}</h3>
+              <p className="mt-1 text-sm italic text-[var(--ep-sub)]">{guide.summary}</p>
+            </button>
+          ))}
+          {guides.length > 2 && (
+            <button type="button" onClick={() => setGuideIndex(2)} className="cursor-pointer text-sm font-semibold text-[var(--ep-primary)]">
+              {isId ? `Lainnya · ${guides.length - 2}` : `More · ${guides.length - 2}`}
+            </button>
+          )}
         </section>
 
         <SustainabilityGallery items={galleryItems} />
@@ -644,8 +658,52 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
           </div>
         </div>
       )}
+      {guideIndex !== null && (
+        <div ref={guideScroll} className="fixed inset-0 z-50 overflow-y-auto bg-slate-950 text-slate-100">
+          <div className="sticky top-0 z-10 flex items-center justify-end gap-4 bg-slate-950 px-4 py-3 md:px-6">
+            {guideIndex < guides.length - 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  const next = guideIndex + 1;
+                  setGuideIndex(next);
+                  const el = document.getElementById(`gd-${next}`);
+                  if (el && guideScroll.current) guideScroll.current.scrollTo({ top: el.offsetTop - 56, behavior: 'smooth' });
+                }}
+                className="cursor-pointer text-sm font-semibold text-emerald-400"
+              >
+                {isId ? 'Berikutnya' : 'Next'}
+              </button>
+            )}
+            <button type="button" onClick={() => setGuideIndex(null)} className="cursor-pointer text-sm font-semibold">
+              {isId ? 'Tutup' : 'Close'}
+            </button>
+          </div>
+          <div className="px-4 pb-24 pt-4 md:px-16">
+            <TracingBeam container={guideScroll}>
+              {(guideFull.length ? guideFull : guides).map((guide, i) => (
+                <section id={`gd-${i}`} key={guide.id} className="mb-28 scroll-mt-16">
+                  <p className="text-sm text-emerald-400">{guide.pillar} · {guide.readTimeMinutes} {isId ? 'mnt' : 'min'}</p>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">{guide.title}</h2>
+                  {guide.summary && <p className="mt-4 text-lg italic text-slate-300">{guide.summary}</p>}
+                  {guide.content && (
+                    <div className="mt-6 whitespace-pre-line text-base leading-relaxed text-slate-200">{guide.content.replace(/\*\*/g, '').replace(/ (\d+\. )/g, '\n$1')}</div>
+                  )}
+                  {guide.keyTakeaways?.length > 0 && (
+                    <div className="mt-8 space-y-2">
+                      <p className="text-sm font-semibold text-emerald-400">{isId ? 'Poin' : 'Takeaways'}</p>
+                      {guide.keyTakeaways.map(point => (
+                        <p key={point} className="text-base text-slate-200">{point.replace(/\*\*/g, '')}</p>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              ))}
+            </TracingBeam>
+          </div>
+        </div>
+      )}
       <ArticleReaderModal article={activeArticle} onClose={() => setActiveArticle(null)} onLike={handleLike} onNavigateToPortal={onStartOnboarding} />
-      <GuideReaderModal guide={activeGuide} onClose={() => setActiveGuide(null)} />
     </div>
   );
 };

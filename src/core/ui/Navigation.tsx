@@ -205,7 +205,7 @@ export const DesktopHeader: React.FC<NavProps> = ({
           <span className="font-semibold text-base tracking-tight text-slate-900 dark:text-slate-50 truncate">
             ESG Together
           </span>
-          <span className="hidden sm:inline text-xs font-semibold tracking-wide text-[#9A7340] dark:text-[#D4B36A]">
+          <span className="hidden sm:inline text-xs font-semibold tracking-wide" style={{ color: vendorLevel === 'Bronze' ? '#C9844A' : vendorLevel === 'Silver' ? '#A3ADB8' : vendorLevel === 'Gold' ? '#C9A84C' : '#34D399' }}>
             {vendorLevel}
           </span>
         </div>
