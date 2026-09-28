@@ -3,6 +3,7 @@ import { AssessmentAnswerOption, AssessmentQuestion, AssessmentResult, Recommend
 import { assessmentService } from '../services/assessmentService';
 import { PrimaryTab } from '../../../core/types';
 import { useLanguage } from '../../../core/context/LanguageContext';
+import { useAuth } from '../../../core/context/AuthContext';
 import {
   Leaf,
   Users,
@@ -51,6 +52,7 @@ interface AssessmentViewProps {
 
 export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) => {
   const { lang, isId } = useLanguage();
+  const { refreshAuth } = useAuth();
   const [answers, setAnswers] = useState<Record<string, AssessmentAnswerOption>>({});
   const [expandedWhy, setExpandedWhy] = useState<Record<string, boolean>>({});
   const [result, setResult] = useState<AssessmentResult | null>(null);
@@ -126,6 +128,7 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
             setShownScore(saved.overallPercentage);
             setScoreRun(1);
             setScoreError('');
+            void refreshAuth();
             return;
           }
         }
@@ -138,6 +141,7 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
       }
       setScoreRun(n => n + 1);
       setScoreError('');
+      void refreshAuth();
       setResult(calculated);
       setHistory(await assessmentService.getAssessmentHistory());
 
