@@ -29,7 +29,6 @@ import {
   Building2,
   Menu,
   X,
-  ChevronRight,
   ChevronDown,
 } from 'lucide-react';
 
@@ -300,28 +299,14 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
           </div>
 
           <div className="flex flex-1 flex-col items-center justify-center py-16 text-center">
-            <a href="#berita" className="liquid-glass mb-6 inline-flex items-center gap-2 rounded-full py-1 pl-4 pr-1 text-sm">
-              {isId ? 'Buletin ESG Siloam' : 'Siloam ESG bulletin'}
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/5 px-3 py-1">
-                {isId ? 'Baca' : 'Explore'} <ChevronRight className="h-4 w-4" />
-              </span>
-            </a>
             <h1 className="max-w-5xl text-4xl font-semibold leading-[1.05] tracking-tight text-[var(--ep-hero)] sm:text-6xl lg:text-7xl">
               {isId ? 'Aksi ESG rantai pasok, dalam satu portal' : 'Supply-chain ESG, in one portal'}
             </h1>
-            <p className="mt-5 max-w-md text-lg text-[var(--ep-sub)] opacity-80">
+            <p className="mt-5 max-w-xl text-lg text-white [text-shadow:0_1px_2px_rgb(0_0_0/0.9),0_8px_28px_rgb(0_0_0/0.8)]">
               {isId
                 ? 'Ukur kematangan, belajar, unggah bukti, dan tandatangani kode etik. Undangan roster, bukan daftar umum.'
                 : 'Measure maturity, learn, upload evidence, and sign the code of conduct. Roster invite only.'}
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <button type="button" onClick={enter} className="rounded-full bg-[var(--ep-primary)] px-6 py-3 text-base font-medium text-[var(--ep-primary-fg)] hover:opacity-90">
-                {signedIn ? (isId ? 'Buka portal' : 'Open portal') : (isId ? 'Masuk sekarang' : 'Sign in')}
-              </button>
-              <a href="#dampak" className="liquid-glass rounded-full px-6 py-3 text-base hover:bg-white/5">
-                {isId ? 'Lihat dampak' : 'See impact'}
-              </a>
-            </div>
           </div>
 
           <div className="flex w-full max-w-6xl items-center gap-6 overflow-hidden">
@@ -340,30 +325,6 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
       </section>
 
       <main className="mx-auto max-w-6xl space-y-24 px-4 py-20 sm:px-6">
-        {heroSlides.length > 0 && (
-          <section className="space-y-2">
-            <h2 className="text-3xl font-semibold tracking-tight">{isId ? 'Sorotan' : 'Highlights'}</h2>
-            <p className="text-sm italic text-[var(--ep-sub)]">{isId ? 'Dua dulu. Gambarnya ada di dalam.' : 'Two first. Pictures are inside.'}</p>
-            {heroSlides.slice(0, 2).map(slide => (
-              <button
-                key={slide.id}
-                type="button"
-                onClick={() => setHeroIndex(heroSlides.indexOf(slide))}
-                className="block w-full cursor-pointer border-b border-white/10 py-5 text-left"
-              >
-                <p className="text-sm text-[var(--ep-primary)]">{slide.badgeText}</p>
-                <h3 className="mt-1 text-lg font-semibold">{slide.title}</h3>
-                <p className="mt-1 text-sm italic text-[var(--ep-sub)]">{slide.subtitle}</p>
-              </button>
-            ))}
-            {heroSlides.length > 2 && (
-              <button type="button" onClick={() => setHeroIndex(2)} className="cursor-pointer text-sm font-semibold text-[var(--ep-primary)]">
-                {isId ? `Lainnya · ${heroSlides.length - 2}` : `More · ${heroSlides.length - 2}`}
-              </button>
-            )}
-          </section>
-        )}
-
         <section id="cara" className="space-y-8">
           <h2 className="text-center text-3xl font-semibold tracking-tight sm:text-4xl">
             {isId ? 'Tiga langkah' : 'Three steps'}
@@ -413,7 +374,68 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
           </div>
         </section>
 
+        <section id="edukasi" className="space-y-6">
+          <div>
+            <h2 className="text-3xl font-semibold tracking-tight">{isId ? 'Edukasi terbuka' : 'Open learning'}</h2>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {guides.map(guide => (
+              <button
+                key={guide.id}
+                type="button"
+                onClick={() => void openGuide(guide.id)}
+                className="p-1 text-left"
+              >
+                <p className="text-xs text-[var(--ep-primary)]">{guide.pillar} · {guide.readTimeMinutes} {isId ? 'mnt' : 'min'}</p>
+                <h3 className="mt-2 font-semibold">{guide.title}</h3>
+                <p className="mt-2 line-clamp-3 text-sm text-[var(--ep-sub)]">{guide.summary}</p>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section id="spotlight" className="space-y-6">
+          <h2 className="text-3xl font-semibold tracking-tight">{isId ? 'Cerita mitra' : 'Partner stories'}</h2>
+          <div className="columns-1 gap-4 md:columns-2 lg:columns-3">
+            {spotlights.map(spot => (
+              <div key={spot.id} className="mb-8 break-inside-avoid">
+                <p className="text-xs text-[var(--ep-primary)]">{spot.maturityLevel}</p>
+                <h3 className="mt-1 text-lg font-semibold">{spot.vendorName}</h3>
+                <p className="text-sm text-[var(--ep-sub)]">{spot.industry} · {spot.location}</p>
+                <p className="mt-3 text-sm">{spot.achievementSummary}</p>
+                <p className="mt-3 text-2xl font-semibold text-[var(--ep-primary)]">{spot.metricAchieved}</p>
+                <p className="text-xs text-[var(--ep-sub)]">{spot.metricLabel}</p>
+                {spot.quote && <p className="mt-3 text-sm italic text-[var(--ep-sub)]">“{spot.quote}”</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+
         <SustainabilityGallery items={galleryItems} />
+
+        {heroSlides.length > 0 && (
+          <section className="space-y-2">
+            <h2 className="text-3xl font-semibold tracking-tight">{isId ? 'Sorotan' : 'Highlights'}</h2>
+            <p className="text-sm italic text-[var(--ep-sub)]">{isId ? 'Dua dulu. Gambarnya ada di dalam.' : 'Two first. Pictures are inside.'}</p>
+            {heroSlides.slice(0, 2).map(slide => (
+              <button
+                key={slide.id}
+                type="button"
+                onClick={() => setHeroIndex(heroSlides.indexOf(slide))}
+                className="block w-full cursor-pointer border-b border-white/10 py-5 text-left"
+              >
+                <p className="text-sm text-[var(--ep-primary)]">{slide.badgeText}</p>
+                <h3 className="mt-1 text-lg font-semibold">{slide.title}</h3>
+                <p className="mt-1 text-sm italic text-[var(--ep-sub)]">{slide.subtitle}</p>
+              </button>
+            ))}
+            {heroSlides.length > 2 && (
+              <button type="button" onClick={() => setHeroIndex(2)} className="cursor-pointer text-sm font-semibold text-[var(--ep-primary)]">
+                {isId ? `Lainnya · ${heroSlides.length - 2}` : `More · ${heroSlides.length - 2}`}
+              </button>
+            )}
+          </section>
+        )}
 
         <section id="berita" className="space-y-2">
           <h2 className="text-3xl font-semibold tracking-tight">{isId ? 'Artikel' : 'Articles'}</h2>
@@ -440,43 +462,6 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
           {filteredArticles.length === 0 && (
             <p className="py-10 text-center text-sm text-[var(--ep-sub)]">{isId ? 'Tidak ada artikel.' : 'No articles.'}</p>
           )}
-        </section>
-
-        <section id="spotlight" className="space-y-6">
-          <h2 className="text-3xl font-semibold tracking-tight">{isId ? 'Cerita mitra' : 'Partner stories'}</h2>
-          <div className="columns-1 gap-4 md:columns-2 lg:columns-3">
-            {spotlights.map(spot => (
-              <div key={spot.id} className="mb-8 break-inside-avoid">
-                <p className="text-xs text-[var(--ep-primary)]">{spot.maturityLevel}</p>
-                <h3 className="mt-1 text-lg font-semibold">{spot.vendorName}</h3>
-                <p className="text-sm text-[var(--ep-sub)]">{spot.industry} · {spot.location}</p>
-                <p className="mt-3 text-sm">{spot.achievementSummary}</p>
-                <p className="mt-3 text-2xl font-semibold text-[var(--ep-primary)]">{spot.metricAchieved}</p>
-                <p className="text-xs text-[var(--ep-sub)]">{spot.metricLabel}</p>
-                {spot.quote && <p className="mt-3 text-sm italic text-[var(--ep-sub)]">“{spot.quote}”</p>}
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="edukasi" className="space-y-6">
-          <div>
-            <h2 className="text-3xl font-semibold tracking-tight">{isId ? 'Edukasi terbuka' : 'Open learning'}</h2>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {guides.map(guide => (
-              <button
-                key={guide.id}
-                type="button"
-                onClick={() => void openGuide(guide.id)}
-                className="p-1 text-left"
-              >
-                <p className="text-xs text-[var(--ep-primary)]">{guide.pillar} · {guide.readTimeMinutes} {isId ? 'mnt' : 'min'}</p>
-                <h3 className="mt-2 font-semibold">{guide.title}</h3>
-                <p className="mt-2 line-clamp-3 text-sm text-[var(--ep-sub)]">{guide.summary}</p>
-              </button>
-            ))}
-          </div>
         </section>
 
         <section id="faq" className="space-y-4">
