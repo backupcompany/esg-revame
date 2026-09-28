@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
+import { useLanguage } from '../../../core/context/LanguageContext';
 import { OnboardingStep, OnboardingFormState, FAMILIARITY_OPTIONS, OBJECTIVE_OPTIONS } from '../types';
 import { onboardingService } from '../services/onboardingService';
 import { PrimaryTab } from '../../../core/types';
@@ -28,6 +30,7 @@ interface OnboardingFlowProps {
 }
 
 export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
+  const { isId } = useLanguage();
   const [step, setStep] = useState<OnboardingStep>(1);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -132,10 +135,12 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
             <span className="font-semibold">ESG Together</span>
           </div>
           <div className="flex items-center gap-4 text-sm">
-            {step < 5 && <span className="text-slate-500">{step} of 4</span>}
-            <button type="button" onClick={() => onComplete('home')} className="cursor-pointer font-semibold text-slate-700 dark:text-slate-200">
-              Skip
-            </button>
+            {step < 5 && <span className="text-slate-500">{step} / 4</span>}
+            {step < 5 && (
+              <button type="button" onClick={() => onComplete('home')} className="cursor-pointer font-semibold text-slate-700 dark:text-slate-200">
+                {isId ? 'Lewati' : 'Skip'}
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -392,15 +397,17 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                     key={opt.id}
                     type="button"
                     onClick={() => setFormData({ ...formData, esgFamiliarity: opt.id })}
-                    className={`cursor-pointer border-b border-slate-300 py-4 text-left dark:border-slate-800 ${
-                      isSelected ? 'text-emerald-700 dark:text-emerald-300' : ''
+                    className={`cursor-pointer border-b py-4 text-left ${
+                      isSelected ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-800'
                     }`}
                   >
-                    <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4 shrink-0">
+                    <div className={`mb-4 flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+                      isSelected ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500 dark:bg-slate-800'
+                    }`}>
                       {renderIconForFamiliarity(opt.icon)}
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
+                      <h3 className={`mb-1 text-base font-bold ${isSelected ? 'text-emerald-600 dark:text-emerald-300' : 'text-slate-900 dark:text-slate-100'}`}>
                         {opt.title}
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -467,16 +474,18 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
                     key={obj.id}
                     type="button"
                     onClick={() => toggleObjective(obj.id)}
-                    className={`flex cursor-pointer items-start gap-3 border-b border-slate-300 py-4 text-left dark:border-slate-800 ${
-                      isSelected ? 'text-emerald-700 dark:text-emerald-300' : ''
+                    className={`flex cursor-pointer items-start gap-3 border-b py-4 text-left ${
+                      isSelected ? 'border-emerald-500' : 'border-slate-300 dark:border-slate-800'
                     }`}
                   >
-                    <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${
+                      isSelected ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500 dark:bg-slate-800'
+                    }`}>
                       {renderIconForObjective(obj.icon)}
                     </div>
 
                     <div>
-                      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-0.5">
+                      <h3 className={`mb-0.5 text-sm font-bold ${isSelected ? 'text-emerald-600 dark:text-emerald-300' : 'text-slate-900 dark:text-slate-100'}`}>
                         {obj.title}
                       </h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400 leading-snug">
@@ -513,50 +522,46 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
 
         {/* ================= STEP 5: COMPLETION ================= */}
         {step === 5 && (
-          <div className="w-full max-w-lg mx-auto py-6 text-center flex flex-col items-center animate-fade-in space-y-6">
-            <div className="relative w-36 h-36 flex items-center justify-center">
-              <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-2xl animate-pulse" />
-              <div className="w-28 h-28 bg-[#0f5238] rounded-full flex items-center justify-center shadow-2xl relative z-10 border-4 border-white dark:border-slate-800">
-                <CheckCircle className="w-14 h-14 text-white" />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-slate-100">
-                Your ESG Journey is Ready
-              </h1>
-              <p className="text-sm text-slate-600 dark:text-slate-300 max-w-md mx-auto leading-relaxed">
-                Your company profile has been created. The next recommended step is to take the 15-question <strong>ESG Starter Assessment</strong> to calculate your maturity level and receive personalized action steps.
-              </p>
-            </div>
-
-            {/* Feature Banner Box */}
-            <p className="text-sm italic text-slate-600 dark:text-slate-300">
-              Next: 15 questions. The score becomes your level.
+          <motion.div
+            className="flex w-full max-w-md flex-col items-center text-center"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+          >
+            <motion.div
+              className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 text-white"
+              initial={{ scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 16 }}
+            >
+              <CheckCircle className="h-10 w-10" />
+            </motion.div>
+            <h1 className="mt-8 text-3xl font-semibold tracking-tight">
+              {isId ? 'Profil siap' : 'Profile ready'}
+            </h1>
+            <p className="mt-3 text-lg italic text-slate-600 dark:text-slate-300">
+              {isId
+                ? 'Berikutnya 15 soal. Angka hijau itu yang jadi level.'
+                : 'Next is 15 questions. The green score becomes the level.'}
             </p>
-
-            {/* Action CTAs */}
-            <div className="w-full space-y-3 pt-2">
-              <button
-                type="button"
-                disabled={isSaving}
-                onClick={() => handleCompleteOnboarding('assessment')}
-                className="w-full h-13 bg-[#0f5238] hover:bg-[#0f5238]/90 text-white font-bold text-sm rounded-2xl flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95 cursor-pointer"
-              >
-                <span>Start ESG Assessment</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              <button
-                type="button"
-                disabled={isSaving}
-                onClick={() => handleCompleteOnboarding('home')}
-                className="w-full h-11 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-xs rounded-2xl flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors cursor-pointer"
-              >
-                Go to Dashboard First
-              </button>
-            </div>
-          </div>
+            <button
+              type="button"
+              disabled={isSaving}
+              onClick={() => handleCompleteOnboarding('assessment')}
+              className="mt-8 flex w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-emerald-600 py-3 font-semibold text-white disabled:opacity-50"
+            >
+              {isId ? 'Mulai asesmen' : 'Start assessment'}
+              <ArrowRight className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              disabled={isSaving}
+              onClick={() => handleCompleteOnboarding('home')}
+              className="mt-3 cursor-pointer text-sm font-semibold text-slate-500"
+            >
+              {isId ? 'Nanti, ke beranda' : 'Later, go home'}
+            </button>
+          </motion.div>
         )}
       </main>
 

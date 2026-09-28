@@ -13,7 +13,6 @@ import {
   Download,
   RotateCcw,
   Sparkles,
-  CheckCircle2,
   Award,
   Zap,
   Recycle,
@@ -63,6 +62,7 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
   const [shownScore, setShownScore] = useState(0);
   const [scoreRun, setScoreRun] = useState(0);
   const [scoreError, setScoreError] = useState('');
+  const draftChain = React.useRef(Promise.resolve());
 
   useEffect(() => {
     let cancelled = false;
@@ -101,7 +101,7 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
       const idx = questions.findIndex(q => q.id === questionId);
       const rest = questions.findIndex((q, i) => i > idx && !next[q.id]);
       if (rest >= 0) setCursor(rest);
-      void assessmentService.saveDraft(next);
+      draftChain.current = draftChain.current.then(() => assessmentService.saveDraft(next)).then(() => undefined);
       return next;
     });
   };
@@ -117,11 +117,11 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
 
     try {
       const calculated = await assessmentService.saveResult(answers);
-      setScoreRun(n => n + 1);
       if (!calculated) {
-        setScoreError(isId ? 'Angka di kanan sudah dihitung. Server belum menyimpan.' : 'The score on the right is ready. The server did not save it.');
+        setScoreError(isId ? 'Server belum menyimpan. Coba Hitung hasil lagi.' : 'The server did not save it. Calculate again.');
         return;
       }
+      setScoreRun(n => n + 1);
       setScoreError('');
       setResult(calculated);
       setHistory(await assessmentService.getAssessmentHistory());
@@ -687,10 +687,10 @@ Note: This score is a diagnostic guide for operational improvement and does not 
         {/* Answer Options Radio Grid */}
         <div className="grid gap-2">
           {[
-            { label: isId ? 'Sudah' : 'Yes', value: 'yes' as const },
-            { label: isId ? 'Sebagian' : 'Partially', value: 'partially' as const },
-            { label: isId ? 'Belum' : 'Not yet', value: 'not_yet' as const },
-            { label: isId ? 'Tidak relevan' : 'Not applicable', value: 'na' as const }
+            { letter: 'A', label: isId ? 'Sudah' : 'Yes', value: 'yes' as const },
+            { letter: 'B', label: isId ? 'Sebagian' : 'Partially', value: 'partially' as const },
+            { letter: 'C', label: isId ? 'Belum' : 'Not yet', value: 'not_yet' as const },
+            { letter: 'D', label: isId ? 'Tidak relevan' : 'Not applicable', value: 'na' as const }
           ].map(opt => {
             const isSelected = currentVal === opt.value;
             return (
@@ -699,11 +699,15 @@ Note: This score is a diagnostic guide for operational improvement and does not 
                 type="button"
                 disabled={locked}
                 onClick={() => handleOptionSelect(q.id, opt.value)}
-                className={`py-2 text-left text-sm disabled:cursor-default cursor-pointer ${
-                  isSelected ? 'font-semibold text-emerald-700 dark:text-emerald-300' : 'text-slate-700 dark:text-slate-200'
+                className={`flex items-center gap-3 py-2 text-left text-sm disabled:cursor-default cursor-pointer ${
+                  isSelected ? 'font-semibold text-emerald-600 dark:text-emerald-300' : 'text-slate-700 dark:text-slate-200'
                 }`}
               >
-                {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[#0f5238] dark:text-emerald-400 shrink-0" />}
+                <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                  isSelected ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-300'
+                }`}>
+                  {opt.letter}
+                </span>
                 <span>{opt.label}</span>
               </button>
             );

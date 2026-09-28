@@ -53,7 +53,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
   const activeCommitments = commitments.filter(c => c.status === 'In Progress' || c.status === 'Submitted');
   const completedCount = commitments.filter(c => c.status === 'Verified').length;
 
-  const isCodeOfEthicsSigned = Boolean(latestDeclaration && latestDeclaration.signatureConfirmed);
+  const isCodeOfEthicsSigned = latestDeclaration?.status === 'active';
   const badgeRank: Record<string, number> = {
     Starter: 1, Bronze: 2, Silver: 3, Gold: 4, Champion: 5,
   };

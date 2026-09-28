@@ -33,8 +33,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 
-const HERO_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260309_042944_4a2205b7-b061-490a-852b-92d9e9955ce9.mp4';
+const HERO_VIDEO = '/hero.mp4?v=2';
 
 interface NewsletterLandingViewProps {
   onNavigateToVendor: (tab?: PrimaryTab) => void;
@@ -76,6 +75,7 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
   const [articleFull, setArticleFull] = useState<NewsletterArticle[]>([]);
   const heroScroll = useRef<HTMLDivElement>(null);
   const articleScroll = useRef<HTMLDivElement>(null);
+  const heroVideo = useRef<HTMLVideoElement>(null);
   const [activeArticle, setActiveArticle] = useState<NewsletterArticle | null>(null);
   const [activeGuide, setActiveGuide] = useState<PublicLearningGuide | null>(null);
   const [subscriberEmail, setSubscriberEmail] = useState('');
@@ -193,6 +193,20 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
   const enter = () => (signedIn ? onNavigateToVendor('home') : onOpenAuth?.());
 
   useEffect(() => {
+    const v = heroVideo.current;
+    if (!v) return;
+    v.muted = true;
+    v.defaultMuted = true;
+    const start = () => {
+      v.muted = true;
+      void v.play().catch(() => {});
+    };
+    start();
+    v.addEventListener('loadeddata', start);
+    return () => v.removeEventListener('loadeddata', start);
+  }, []);
+
+  useEffect(() => {
     if (heroIndex === null) return;
     const el = document.getElementById(`hl-${heroIndex}`);
     if (el && heroScroll.current) heroScroll.current.scrollTo({ top: Math.max(0, el.offsetTop - 56) });
@@ -218,17 +232,16 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
     <div className="esg-public dark min-h-screen">
       <section id="hero" className="relative min-h-screen overflow-hidden">
         <video
+          ref={heroVideo}
           className="esg-hero-video pointer-events-none absolute inset-0 h-full w-full object-cover"
           src={HERO_VIDEO}
           autoPlay
           loop
           muted
           playsInline
+          preload="auto"
           controls={false}
           disablePictureInPicture
-          onPause={e => {
-            void e.currentTarget.play();
-          }}
         />
 
         <div className="relative z-10 flex min-h-screen flex-col items-center px-4 pb-10 pt-6">
@@ -565,7 +578,7 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
 
       {heroIndex !== null && (
         <div ref={heroScroll} className="fixed inset-0 z-50 overflow-y-auto bg-slate-950 text-slate-100">
-          <div className="sticky top-0 z-10 flex items-center justify-end gap-4 bg-slate-950/90 px-6 py-4">
+          <div className="sticky top-0 z-10 flex items-center justify-end gap-4 bg-slate-950 px-4 py-3 md:px-6">
             {heroIndex < heroSlides.length - 1 && (
               <button
                 type="button"
@@ -584,12 +597,12 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
               {isId ? 'Tutup' : 'Close'}
             </button>
           </div>
-          <div className="px-10 pb-24 pt-6 md:px-16">
+          <div className="px-4 pb-24 pt-4 md:px-16">
             <TracingBeam container={heroScroll}>
               {heroSlides.map((slide, i) => (
                 <section id={`hl-${i}`} key={slide.id} className="mb-28 scroll-mt-16">
                   <p className="text-sm text-emerald-400">{slide.badgeText}</p>
-                  <h2 className="mt-2 text-3xl font-semibold tracking-tight">{slide.title}</h2>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">{slide.title}</h2>
                   <img src={slide.imageUrl} alt="" className="mt-6 max-h-96 w-full rounded-lg object-cover" />
                   <p className="mt-4 text-lg italic text-slate-300">{slide.subtitle}</p>
                   {slide.impactBadge && (
@@ -606,7 +619,7 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
       )}
       {articleIndex !== null && (
         <div ref={articleScroll} className="fixed inset-0 z-50 overflow-y-auto bg-slate-950 text-slate-100">
-          <div className="sticky top-0 z-10 flex items-center justify-end gap-4 bg-slate-950/90 px-6 py-4">
+          <div className="sticky top-0 z-10 flex items-center justify-end gap-4 bg-slate-950 px-4 py-3 md:px-6">
             {articleIndex < filteredArticles.length - 1 && (
               <button
                 type="button"
@@ -625,12 +638,12 @@ export const NewsletterLandingView: React.FC<NewsletterLandingViewProps> = ({
               {isId ? 'Tutup' : 'Close'}
             </button>
           </div>
-          <div className="px-10 pb-24 pt-6 md:px-16">
+          <div className="px-4 pb-24 pt-4 md:px-16">
             <TracingBeam container={articleScroll}>
               {(articleFull.length ? articleFull : filteredArticles).map((article, i) => (
                 <section id={`art-${i}`} key={article.id} className="mb-28 scroll-mt-16">
                   <p className="text-sm text-emerald-400">{article.category}{article.edition ? ` · ${article.edition}` : ''}</p>
-                  <h2 className="mt-2 text-3xl font-semibold tracking-tight">{article.title}</h2>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">{article.title}</h2>
                   {article.coverImageUrl && <img src={article.coverImageUrl} alt="" className="mt-6 max-h-96 w-full rounded-lg object-cover" />}
                   <p className="mt-4 text-lg italic text-slate-300">{article.subtitle}</p>
                   {article.impactHighlight && (

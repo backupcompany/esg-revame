@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { PrimaryTab } from './core/types';
 import { getInitialTheme, setTheme } from './core/ui/theme';
 import { DesktopHeader, MobileBottomNav } from './core/ui/Navigation';
@@ -39,9 +40,9 @@ function readPlace(): { view: (typeof VIEWS)[number]; tab: PrimaryTab } {
 }
 
 function AuthGateOverlay({ kind }: { kind: 'in' | 'out' }) {
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 backdrop-blur-md"
+      className="fixed inset-0 z-[9999] grid h-dvh w-dvw place-items-center bg-black/30 backdrop-blur-md"
       role="status"
       aria-live="polite"
     >
@@ -50,7 +51,8 @@ function AuthGateOverlay({ kind }: { kind: 'in' | 'out' }) {
           kind === 'out' ? 'border-blue-500' : 'border-emerald-500'
         }`}
       />
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -66,6 +68,7 @@ export default function App() {
   const [theme, setThemeState] = useState<'light' | 'dark'>(getInitialTheme);
   const [reportModalCommitmentId, setReportModalCommitmentId] = useState<string | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [enterAfterLogin, setEnterAfterLogin] = useState(false);
 
   useEffect(() => {
     if (currentView === 'admin' && !canAccessAdmin) {
@@ -81,6 +84,12 @@ export default function App() {
     if (authLoading) return;
     if (!dbUser && currentView !== 'public') setCurrentView('public');
   }, [authLoading, dbUser, currentView]);
+
+  useEffect(() => {
+    if (!enterAfterLogin || authLoading || !dbUser) return;
+    setEnterAfterLogin(false);
+    setCurrentView(needsOnboarding ? 'onboarding' : 'vendor');
+  }, [enterAfterLogin, authLoading, dbUser, needsOnboarding]);
 
   useEffect(() => {
     if (authLoading || !needsOnboarding || currentView === 'public') return;
@@ -169,7 +178,7 @@ export default function App() {
           onToggleTheme={handleToggleTheme}
           onOpenAuth={() => setIsAuthModalOpen(true)}
         />
-        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onSignedIn={() => setEnterAfterLogin(true)} />
         {gate}
       </>
     );
@@ -198,7 +207,7 @@ export default function App() {
         canAccessAdmin={canAccessAdmin}
       />
 
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onSignedIn={() => setEnterAfterLogin(true)} />
 
       {/* Primary View Router */}
       <main className="flex-1 w-full">

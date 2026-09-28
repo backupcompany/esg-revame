@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../../../core/context/AuthContext';
 import { vendorService } from '../../../core/services/vendorService';
 import { commitmentService } from '../../../core/services/commitmentService';
 import { actionService } from '../../../core/services/actionService';
@@ -9,6 +10,7 @@ import { CodeOfConductDeclaration } from '../../../modules/declaration/types';
 import { VendorProfile, ESGCommitment, ESGAction, EcosystemMetrics, EcosystemImpactTotals } from '../../../core/types';
 
 export function useHomeData() {
+  const { dbUser } = useAuth();
   const [vendor, setVendor] = useState<VendorProfile | null>(null);
   const [commitments, setCommitments] = useState<ESGCommitment[]>([]);
   const [actions, setActions] = useState<ESGAction[]>([]);
@@ -18,8 +20,8 @@ export function useHomeData() {
   const [latestDeclaration, setLatestDeclaration] = useState<CodeOfConductDeclaration | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const reloadData = async () => {
-    setIsLoading(true);
+  const reloadData = async (quiet = false) => {
+    if (!quiet) setIsLoading(true);
     try {
       const v = await vendorService.getProfile();
       const cmts = await commitmentService.getVendorCommitments(v.id);
@@ -47,8 +49,13 @@ export function useHomeData() {
   };
 
   useEffect(() => {
-    reloadData();
-  }, []);
+    void reloadData();
+    const onVis = () => {
+      if (document.visibilityState === 'visible') void reloadData(true);
+    };
+    document.addEventListener('visibilitychange', onVis);
+    return () => document.removeEventListener('visibilitychange', onVis);
+  }, [dbUser?.id, dbUser?.vendorId]);
 
   return {
     vendor,

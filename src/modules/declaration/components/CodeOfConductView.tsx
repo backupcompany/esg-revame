@@ -48,8 +48,8 @@ export const CodeOfConductView: React.FC = () => {
   const handleSubmitDeclaration = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
-    if (!vendor?.id) {
-      setErrorMsg('Akun belum terhubung ke vendor. Hubungi admin Siloam.');
+    if (!vendor?.id && !dbUser?.vendorId) {
+      setErrorMsg(isId ? 'Akun ini belum terhubung ke perusahaan, jadi belum bisa tanda tangan.' : 'This account is not linked to a company yet, so it cannot sign.');
       return;
     }
     if (!signatureConfirmed) {
@@ -159,7 +159,7 @@ export const CodeOfConductView: React.FC = () => {
           <input type="checkbox" checked={signatureConfirmed} onChange={e => setSignatureConfirmed(e.target.checked)} className="mt-1" />
           <span>{isId ? 'Saya berwenang mewakili pemasok dan menyetujui aturan ini tanpa paksaan.' : 'I am authorized to sign for the supplier and I agree to these rules.'}</span>
         </label>
-        <button type="submit" disabled={isSubmitting || !signatureConfirmed || !vendor?.id} className="rounded-full px-5 py-2.5 text-sm font-medium text-white disabled:opacity-40 cursor-pointer" style={{ background: '#5E9A6B' }}>
+        <button type="submit" disabled={isSubmitting} className="cursor-pointer rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
           {isSubmitting ? (isId ? 'Menyimpan…' : 'Saving…') : (isId ? 'Tandatangani' : 'Sign')}
         </button>
         <p className="text-sm text-slate-900 dark:text-white">{isId ? 'Berlaku satu tahun ke depan.' : 'Valid for the next year.'}</p>

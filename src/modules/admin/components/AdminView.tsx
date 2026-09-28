@@ -100,15 +100,15 @@ export const AdminView: React.FC = () => {
           {metrics?.totals && (
             <div className="mb-6 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-6">
               {[
-                [isId ? 'Pohon' : 'Trees', metrics.totals.treesPlanted],
-                ['kWh', metrics.totals.energySavedKwh],
-                [isId ? 'Kertas kg' : 'Paper kg', metrics.totals.paperReducedKg],
-                [isId ? 'Limbah kg' : 'Waste kg', metrics.totals.wasteRecycledKg],
-                [isId ? 'Air L' : 'Water L', metrics.totals.waterSavedLiters],
-                [isId ? 'Orang' : 'People', metrics.totals.peopleBenefited],
-              ].map(([label, value]) => (
+                [isId ? 'Pohon' : 'Trees', metrics.totals.treesPlanted, 'text-emerald-600'],
+                ['kWh', metrics.totals.energySavedKwh, 'text-amber-500'],
+                [isId ? 'Kertas kg' : 'Paper kg', metrics.totals.paperReducedKg, 'text-sky-500'],
+                [isId ? 'Limbah kg' : 'Waste kg', metrics.totals.wasteRecycledKg, 'text-lime-600'],
+                [isId ? 'Air L' : 'Water L', metrics.totals.waterSavedLiters, 'text-cyan-500'],
+                [isId ? 'Orang' : 'People', metrics.totals.peopleBenefited, 'text-violet-500'],
+              ].map(([label, value, tone]) => (
                 <p key={String(label)}>
-                  <span className="block text-sm text-slate-500">{label}</span>
+                  <span className={`block text-sm font-semibold ${tone}`}>{label}</span>
                   <span className="text-3xl font-semibold text-emerald-500">{value}</span>
                 </p>
               ))}
@@ -116,13 +116,13 @@ export const AdminView: React.FC = () => {
           )}
           <div className="divide-y divide-slate-300 dark:divide-slate-800">
             {([
-              ['corporate-grid', isId ? 'Vendor' : 'Vendors', metrics ? (isId ? `${metrics.activeVendors} aktif` : `${metrics.activeVendors} active`) : (isId ? 'Perusahaan dan skor' : 'Companies and scores'), metrics?.totalVendors ?? 0, isAdminOrSuper],
-              ['superadmin', isId ? 'Daftar' : 'Roster', isId ? `${allUsersList.length} orang yang bisa masuk` : `${allUsersList.length} people who can sign in`, vendorsList.length, isSuperAdmin],
-              ['audit', isId ? 'Bukti' : 'Proof', isId ? 'Menunggu disetujui atau berkas yang lebih jelas' : 'Waiting for a yes or a clearer file', queue.length, isAdminOrSuper],
-              ['catalog', isId ? 'Aksi' : 'Actions', isId ? 'Yang bisa dipilih vendor' : 'What vendors can pick', counts.actions, isSuperAdmin],
-              ['learning', isId ? 'Belajar' : 'Learn', isId ? 'Pelajaran di katalog' : 'Lessons in the catalog', counts.lessons, isSuperAdmin],
-              ['cms', isId ? 'Buletin' : 'Bulletin', isId ? `${counts.articles} artikel` : `${counts.articles} articles`, counts.slides, isSuperAdmin],
-            ] as const).filter((row) => row[4]).map(([id, title, body, n]) => (
+              ['corporate-grid', isId ? 'Vendor' : 'Vendors', metrics ? (isId ? `${metrics.activeVendors} aktif` : `${metrics.activeVendors} active`) : (isId ? 'Perusahaan dan skor' : 'Companies and scores'), metrics?.totalVendors ?? 0, isAdminOrSuper, 'text-emerald-600'],
+              ['superadmin', isId ? 'Daftar' : 'Roster', isId ? `${allUsersList.length} orang yang bisa masuk` : `${allUsersList.length} people who can sign in`, vendorsList.length, isSuperAdmin, 'text-sky-500'],
+              ['audit', isId ? 'Bukti' : 'Proof', isId ? 'Menunggu disetujui atau berkas yang lebih jelas' : 'Waiting for a yes or a clearer file', queue.length, isAdminOrSuper, 'text-amber-500'],
+              ['catalog', isId ? 'Aksi' : 'Actions', isId ? 'Yang bisa dipilih vendor' : 'What vendors can pick', counts.actions, isSuperAdmin, 'text-lime-600'],
+              ['learning', isId ? 'Belajar' : 'Learn', isId ? 'Pelajaran di katalog' : 'Lessons in the catalog', counts.lessons, isSuperAdmin, 'text-violet-500'],
+              ['cms', isId ? 'Buletin' : 'Bulletin', isId ? `${counts.articles} artikel` : `${counts.articles} articles`, counts.slides, isSuperAdmin, 'text-cyan-500'],
+            ] as const).filter((row) => row[4]).map(([id, title, body, n, , tone]) => (
               <button
                 key={id}
                 type="button"
@@ -130,7 +130,7 @@ export const AdminView: React.FC = () => {
                 className="flex w-full items-center justify-between gap-6 py-5 text-left cursor-pointer"
               >
                 <span>
-                  <span className="block text-lg font-semibold">{title}</span>
+                  <span className={`block text-lg font-semibold ${tone}`}>{title}</span>
                   <span className="mt-1 block text-sm italic text-slate-600 dark:text-slate-300">{body}</span>
                 </span>
                 <span className="text-3xl font-semibold text-emerald-500">{n}</span>

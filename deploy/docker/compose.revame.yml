@@ -13,7 +13,7 @@ services:
     environment:
       API_ADDR: 127.0.0.1:8085
       SQL_SSLMODE: disable
-      ESG_ALLOW_DEMO: "false"
+      ESG_ALLOW_DEMO: "true"
       ESG_ENFORCE_ALLOWLIST: "true"
       ESG_UPLOAD_DIR: /app/data/uploads
     volumes:

@@ -48,27 +48,30 @@ export const TracingBeam = ({
     { stiffness: 500, damping: 90 },
   );
 
+  const d = `M 8 0 V ${svgHeight}`;
+
   return (
-    <motion.div className={cn("relative mx-auto h-full w-full max-w-4xl", className)}>
-      <div className="absolute top-3 -left-4 md:-left-12">
-        <div className="ml-[27px] flex h-4 w-4 items-center justify-center rounded-full border border-emerald-400/40">
+    <motion.div className={cn("relative mx-auto h-full w-full max-w-4xl pl-5", className)}>
+      <div className="absolute top-1 left-0">
+        <div className="mb-1 flex h-4 w-4 items-center justify-center rounded-full border border-emerald-400/40">
           <div className="h-2 w-2 rounded-full bg-emerald-400" />
         </div>
         <svg
-          viewBox={`0 0 20 ${svgHeight}`}
-          width="20"
+          viewBox={`0 0 16 ${svgHeight}`}
+          width="16"
           height={svgHeight}
-          className="ml-4 block"
+          className="block"
           aria-hidden="true"
         >
           <motion.path
-            d={`M 1 0V -36 l 18 24 V ${svgHeight * 0.8} l -18 24V ${svgHeight}`}
+            d={d}
             fill="none"
             stroke="#9091A0"
             strokeOpacity="0.16"
+            strokeWidth="1.25"
           />
           <motion.path
-            d={`M 1 0V -36 l 18 24 V ${svgHeight * 0.8} l -18 24V ${svgHeight}`}
+            d={d}
             fill="none"
             stroke="url(#esg-beam)"
             strokeWidth="1.25"

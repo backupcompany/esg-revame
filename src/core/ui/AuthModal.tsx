@@ -30,14 +30,13 @@ function ssoErrorMessage(err: unknown): string {
   return 'Login gagal. Pakai email yang terdaftar di VOB.';
 }
 
-export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void; onSignedIn?: () => void }> = ({ isOpen, onClose, onSignedIn }) => {
   const { isId } = useLanguage();
   const { dbUser, vendor, signInWithGoogle, signInWithMicrosoft, signInWithPassword, signInAsDemoSuperAdmin, signInAsActor, signOut, authError } = useAuth();
   const [ssoError, setSsoError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [actors, setActors] = useState<Actor[]>([]);
-  const [actor, setActor] = useState('');
   const signedIn = Boolean(dbUser);
 
   useEffect(() => {
@@ -57,6 +56,7 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
     setSsoError(null);
     try {
       await fn();
+      onSignedIn?.();
       onClose();
     } catch (err) {
       setSsoError(ssoErrorMessage(err));
@@ -151,33 +151,20 @@ export const AuthModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
               </p>
             )}
             {actors.length > 0 && (
-              <form
-                className="space-y-2"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (actor) void runAuth(() => signInAsActor(actor));
-                }}
-              >
-                <label className="block text-xs font-semibold text-slate-500">
-                  {isId ? 'Masuk sebagai (uji, tanpa password)' : 'Sign in as (test, no password)'}
-                </label>
-                <select
-                  value={actor}
-                  onChange={(e) => setActor(e.target.value)}
-                  className="w-full min-h-12 px-3 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
-                  required
-                >
-                  <option value="">{isId ? 'Pilih akun di database' : 'Pick a database account'}</option>
-                  {actors.map((a) => (
-                    <option key={a.email} value={a.email}>
-                      {(roleLabel[a.role] || a.role)} · {a.name || a.email}{a.company ? ` · ${a.company}` : ''}
-                    </option>
-                  ))}
-                </select>
-                <button type="submit" className="w-full min-h-12 py-3 px-4 bg-slate-900 text-white font-semibold rounded-xl text-sm">
-                  {isId ? 'Masuk' : 'Sign in'}
-                </button>
-              </form>
+              <div className="space-y-2">
+                <p className="text-sm font-semibold">{isId ? 'Masuk sebagai' : 'Sign in as'}</p>
+                {actors.map((a) => (
+                  <button
+                    key={a.email}
+                    type="button"
+                    onClick={() => void runAuth(() => signInAsActor(a.email))}
+                    className="flex w-full min-h-12 cursor-pointer items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-left dark:border-slate-700"
+                  >
+                    <span className="font-semibold">{roleLabel[a.role] || a.role}</span>
+                    <span className="text-sm italic text-slate-500">{a.company || a.name}</span>
+                  </button>
+                ))}
+              </div>
             )}
             <form
               className="space-y-2"

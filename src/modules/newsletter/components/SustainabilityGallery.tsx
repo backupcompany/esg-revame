@@ -38,7 +38,7 @@ export const SustainabilityGallery: React.FC<{ items: SustainabilityGalleryItem[
 
       {index !== null && (
         <div ref={scroll} className="fixed inset-0 z-50 overflow-y-auto bg-slate-950 text-slate-100">
-          <div className="sticky top-0 z-10 flex items-center justify-end gap-4 bg-slate-950/90 px-6 py-4">
+          <div className="sticky top-0 z-10 flex items-center justify-end gap-4 bg-slate-950 px-4 py-3 md:px-6">
             {index < items.length - 1 && (
               <button
                 type="button"
@@ -55,12 +55,12 @@ export const SustainabilityGallery: React.FC<{ items: SustainabilityGalleryItem[
             )}
             <button type="button" onClick={() => setIndex(null)} className="cursor-pointer text-sm font-semibold">Tutup</button>
           </div>
-          <div className="px-10 pb-24 pt-6 md:px-16">
+          <div className="px-4 pb-24 pt-4 md:px-16">
             <TracingBeam container={scroll}>
               {items.map((item, i) => (
                 <section id={`gal-${i}`} key={item.id} className="mb-28 scroll-mt-16">
                   <p className="text-sm text-emerald-400">{item.category} · {item.year}</p>
-                  <h2 className="mt-2 text-3xl font-semibold tracking-tight">{item.title}</h2>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">{item.title}</h2>
                   {item.imageUrl && <img src={item.imageUrl} alt="" className="mt-6 max-h-96 w-full rounded-lg object-cover" />}
                   <p className="mt-4 text-lg italic text-slate-300">{item.hospitalUnit}</p>
                   {item.metricTag && <p className="mt-4 text-2xl font-semibold text-emerald-400">{item.metricTag}</p>}
