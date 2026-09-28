@@ -88,8 +88,17 @@ export default function App() {
   useEffect(() => {
     if (!enterAfterLogin || authLoading || !dbUser) return;
     setEnterAfterLogin(false);
-    setCurrentView(needsOnboarding ? 'onboarding' : 'vendor');
-  }, [enterAfterLogin, authLoading, dbUser, needsOnboarding]);
+    if (needsOnboarding) {
+      setCurrentView('onboarding');
+      return;
+    }
+    if (isOperator && !dbUser.vendorId) {
+      setActiveTab('home');
+      setCurrentView('admin');
+      return;
+    }
+    setCurrentView('vendor');
+  }, [enterAfterLogin, authLoading, dbUser, needsOnboarding, isOperator]);
 
   useEffect(() => {
     if (authLoading || !needsOnboarding || currentView === 'public') return;

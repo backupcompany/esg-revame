@@ -3,7 +3,6 @@ import { AssessmentAnswerOption, AssessmentQuestion, AssessmentResult, Recommend
 import { assessmentService } from '../services/assessmentService';
 import { PrimaryTab } from '../../../core/types';
 import { useLanguage } from '../../../core/context/LanguageContext';
-import { useAuth } from '../../../core/context/AuthContext';
 import {
   Leaf,
   Users,
@@ -52,7 +51,6 @@ interface AssessmentViewProps {
 
 export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) => {
   const { lang, isId } = useLanguage();
-  const { dbUser, signOut } = useAuth();
   const [answers, setAnswers] = useState<Record<string, AssessmentAnswerOption>>({});
   const [expandedWhy, setExpandedWhy] = useState<Record<string, boolean>>({});
   const [result, setResult] = useState<AssessmentResult | null>(null);
@@ -65,13 +63,6 @@ export const AssessmentView: React.FC<AssessmentViewProps> = ({ onNavigate }) =>
   const [scoreRun, setScoreRun] = useState(0);
   const [scoreError, setScoreError] = useState('');
   const draftChain = React.useRef(Promise.resolve());
-
-  const kicked = React.useRef(false);
-  useEffect(() => {
-    if (kicked.current || !dbUser || dbUser.vendorId) return;
-    kicked.current = true;
-    void signOut();
-  }, [dbUser, signOut]);
 
   useEffect(() => {
     let cancelled = false;
@@ -588,8 +579,6 @@ Note: This score is a diagnostic guide for operational improvement and does not 
       </div>
     );
   }
-  if (dbUser && !dbUser.vendorId) return null;
-
   if (!totalQuestions) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-sm text-slate-500">
