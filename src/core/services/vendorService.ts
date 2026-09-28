@@ -64,6 +64,7 @@ export class VendorService {
           contactEmail,
           contactName: String(serverVendor.contactPerson || displayName || ''),
           contactPhone: String(serverVendor.phone || ''),
+          sustainabilityGoal: serverVendor.sustainabilityGoal ? String(serverVendor.sustainabilityGoal) : undefined,
           isVerifiedVendor: serverVendor.verificationStatus === 'Verified',
           esgFamiliarity: serverVendor.esgFamiliarity ? String(serverVendor.esgFamiliarity) : undefined,
           esgObjectives: objectives,
@@ -112,6 +113,7 @@ export class VendorService {
           contactEmail: updated.contactEmail,
           esgFamiliarity: updated.esgFamiliarity,
           esgObjectives: updated.esgObjectives || [],
+          sustainabilityGoal: updated.sustainabilityGoal || '',
           onboardingCompleted: updated.hasCompletedOnboarding,
         })
       });

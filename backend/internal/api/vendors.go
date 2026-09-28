@@ -15,7 +15,8 @@ import (
 const vendorSelect = `
 	id, company_name, industry, employee_count, contact_person, phone, address, verification_status, created_at,
 	esg_score, esg_maturity_level, onboarding_completed,
-	company_size, contact_email, esg_familiarity, esg_objectives, onboarding_completed_at
+	company_size, contact_email, esg_familiarity, esg_objectives, onboarding_completed_at,
+	sustainability_goal
 `
 
 var allowedFamiliarity = map[string]string{
@@ -96,6 +97,7 @@ func (s *Server) upsertVendor(c *gin.Context) {
 		EsgFamiliarity      string   `json:"esgFamiliarity"`
 		EsgObjectives       []string `json:"esgObjectives"`
 		OnboardingCompleted *bool    `json:"onboardingCompleted"`
+		SustainabilityGoal  string   `json:"sustainabilityGoal"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		httpx.Error(c.Writer, http.StatusBadRequest, "invalid json")
@@ -123,6 +125,11 @@ func (s *Server) upsertVendor(c *gin.Context) {
 		}
 	}
 	initBadge := allowedFamiliarity[fam]
+	goal := strings.TrimSpace(body.SustainabilityGoal)
+	if len(goal) > 280 {
+		httpx.Error(c.Writer, http.StatusBadRequest, "sustainabilityGoal too long")
+		return
+	}
 
 	if user.VendorID != nil {
 		_, err = s.db.Exec(ctx, `
@@ -142,13 +149,14 @@ func (s *Server) upsertVendor(c *gin.Context) {
 					WHEN $12 = true AND esg_score = 0 AND NULLIF($13,'') IS NOT NULL THEN $13
 					ELSE esg_maturity_level
 				END,
+				sustainability_goal = $14,
 				updated_at = now()
 			WHERE id = $1
 		`, *user.VendorID, body.CompanyName, strings.TrimSpace(body.Industry),
 			strings.TrimSpace(body.EmployeeCount), strings.TrimSpace(body.ContactPerson),
 			strings.TrimSpace(body.Phone), strings.TrimSpace(body.Address),
 			strings.TrimSpace(body.CompanySize), strings.ToLower(strings.TrimSpace(body.ContactEmail)),
-			nullIfEmpty(fam), objJSON, body.OnboardingCompleted, initBadge)
+			nullIfEmpty(fam), objJSON, body.OnboardingCompleted, initBadge, nullIfEmpty(goal))
 		if err != nil {
 			httpx.Error(c.Writer, http.StatusInternalServerError, "update failed")
 			return
@@ -176,14 +184,15 @@ func (s *Server) upsertVendor(c *gin.Context) {
 		err = tx.QueryRow(ctx, `
 			INSERT INTO vendors (
 				company_name, industry, employee_count, contact_person, phone, address, verification_status,
-				company_size, contact_email, esg_familiarity, esg_objectives, esg_maturity_level
+				company_size, contact_email, esg_familiarity, esg_objectives, esg_maturity_level,
+				sustainability_goal
 			)
-			VALUES ($1,$2,$3,$4,$5,$6,'Pending',$7,$8,$9,COALESCE($10::jsonb,'[]'::jsonb),COALESCE(NULLIF($11,''),'Starter'))
+			VALUES ($1,$2,$3,$4,$5,$6,'Pending',$7,$8,$9,COALESCE($10::jsonb,'[]'::jsonb),COALESCE(NULLIF($11,''),'Starter'),$12)
 			RETURNING id
 		`, body.CompanyName, strings.TrimSpace(body.Industry), strings.TrimSpace(body.EmployeeCount),
 			strings.TrimSpace(body.ContactPerson), strings.TrimSpace(body.Phone), strings.TrimSpace(body.Address),
 			strings.TrimSpace(body.CompanySize), strings.ToLower(strings.TrimSpace(body.ContactEmail)),
-			nullIfEmpty(fam), objJSON, initBadge).Scan(&vendorID)
+			nullIfEmpty(fam), objJSON, initBadge, nullIfEmpty(goal)).Scan(&vendorID)
 		if err != nil {
 			httpx.Error(c.Writer, http.StatusConflict, "could not create vendor")
 			return
@@ -239,8 +248,9 @@ func scanVendorRow(row vendorScanner) (gin.H, error) {
 	var score float64
 	var onboard bool
 	var objectives []byte
+	var goal *string
 	if err := row.Scan(&id, &company, &industry, &employees, &contact, &phone, &address, &status, &created,
-		&score, &maturity, &onboard, &companySize, &contactEmail, &familiarity, &objectives, &onboardAt); err != nil {
+		&score, &maturity, &onboard, &companySize, &contactEmail, &familiarity, &objectives, &onboardAt, &goal); err != nil {
 		return nil, err
 	}
 	if len(objectives) == 0 {
@@ -253,5 +263,6 @@ func scanVendorRow(row vendorScanner) (gin.H, error) {
 		"esgScore": score, "esgMaturityLevel": maturity, "onboardingCompleted": onboard,
 		"companySize": companySize, "contactEmail": contactEmail, "esgFamiliarity": familiarity,
 		"esgObjectives": json.RawMessage(objectives), "onboardingCompletedAt": onboardAt,
+		"sustainabilityGoal": deref(goal),
 	}, nil
 }

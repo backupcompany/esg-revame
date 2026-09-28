@@ -250,7 +250,10 @@ func (s *Server) uploadEvidence(c *gin.Context) {
 			notes = $2,
 			quantity_reported = $3,
 			status = 'Submitted',
-			submitted_at = now()
+			submitted_at = now(),
+			evidence_file_name = COALESCE((
+				SELECT file_name FROM evidence_files WHERE vendor_action_id = $1 ORDER BY id DESC LIMIT 1
+			), evidence_file_name)
 		WHERE id = $1 AND vendor_id = $4
 	`, id, nullIfEmpty(notes), qty, *user.VendorID)
 	if err != nil {

@@ -70,8 +70,17 @@ export class CommitmentService {
     if (!saved?.success) throw new Error('audit update failed');
     const list = await this.getVendorCommitments();
     const found = list.find(c => c.id === commitmentId);
-    if (!found) throw new Error('commitment not found');
-    return found;
+    if (found) return found;
+    return {
+      id: commitmentId,
+      vendorId: '',
+      actionId: '',
+      status,
+      committedDate: '',
+      quantityReported: 1,
+      evidenceFiles: [],
+      verificationFeedback: feedback,
+    };
   }
 }
 
