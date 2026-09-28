@@ -277,6 +277,12 @@ func (s *Server) createAssessment(c *gin.Context) {
 	if !ok {
 		return
 	}
+	for _, q := range qs {
+		if _, answered := body.Answers[q.ID]; !answered {
+			httpx.Error(c.Writer, http.StatusBadRequest, "answer every question")
+			return
+		}
+	}
 	scored := scoreAssessment(qs, body.Answers)
 	answersJSON, err := json.Marshal(body.Answers)
 	if err != nil {

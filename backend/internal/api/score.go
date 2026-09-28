@@ -109,9 +109,13 @@ func scoreAssessment(qs []scoreQ, answers map[string]string) scoreOut {
 	pillars := map[string]*agg{"E": {}, "S": {}, "G": {}}
 	earned, max := 0, 0
 	for _, q := range qs {
-		pts, ok := scorePoints(answers[q.ID])
-		if !ok {
+		ans := answers[q.ID]
+		if ans == "na" {
 			continue
+		}
+		pts, ok := scorePoints(ans)
+		if !ok {
+			pts = 0
 		}
 		p := pillars[q.Pillar]
 		if p == nil {

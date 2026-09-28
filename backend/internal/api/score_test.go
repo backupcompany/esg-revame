@@ -23,4 +23,9 @@ func TestScoreAssessment(t *testing.T) {
 	if gap.Overall != 33 || gap.Level != "Starter" {
 		t.Fatalf("gap: %+v", gap)
 	}
+
+	blank := scoreAssessment(qs, map[string]string{"q1": "yes"})
+	if blank.Overall != 33 || blank.Earned != 10 || blank.Max != 30 || blank.Level != "Starter" {
+		t.Fatalf("blank counts as zero: %+v", blank)
+	}
 }

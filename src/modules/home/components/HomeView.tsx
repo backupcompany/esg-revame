@@ -218,7 +218,7 @@ export const HomeView: React.FC<HomeViewProps> = ({ onNavigate, onOpenReportModa
                 </span>
                 <span
                   className="text-xs uppercase text-slate-400"
-                  style={m.id === 'm1' ? { color: NOW } : m.status === 'completed' ? { color: LEVEL_COLOR.Starter } : undefined}
+                  style={m.status === 'completed' ? { color: LEVEL_COLOR.Starter } : m.status === 'active' ? { color: NOW } : undefined}
                 >{m.status === 'completed' ? (isId ? 'Selesai' : 'Done') : m.status === 'active' ? (isId ? 'Sekarang' : 'Now') : (isId ? 'Nanti' : 'Later')}</span>
               </button>
             </li>

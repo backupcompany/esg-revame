@@ -35,12 +35,13 @@ function previewScore(questions: AssessmentQuestion[], answers: Record<string, A
   let max = 0;
   for (const q of questions) {
     const a = answers[q.id];
-    if (a !== 'yes' && a !== 'partially' && a !== 'not_yet') continue;
+    if (a === 'na') continue;
     const bucket = pillars[q.pillar];
     if (!bucket) continue;
-    bucket.e += pts[a];
+    const point = a === 'yes' || a === 'partially' || a === 'not_yet' ? pts[a] : 0;
+    bucket.e += point;
     bucket.m += 10;
-    earned += pts[a];
+    earned += point;
     max += 10;
   }
   return { pct: max ? Math.round((earned / max) * 100) : 0, earned, max, pillars };
